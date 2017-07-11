@@ -77,6 +77,10 @@ public final class HBaseTables {
     public static final TableName APPLICATION_INDEX = TableName.valueOf("ApplicationIndex");
     public static final byte[] APPLICATION_INDEX_CF_AGENTS = Bytes.toBytes("Agents");
 
+    public static final TableName AGENT_BUSINESS_LOG = TableName.valueOf("AgentBusinessLog");
+    public static final byte[] MESSAGE_INFO = Bytes.toBytes("MessageInfo");
+
+
     public static final TableName AGENTINFO = TableName.valueOf("AgentInfo");
     public static final byte[] AGENTINFO_CF_INFO = Bytes.toBytes("Info");
     public static final byte[] AGENTINFO_CF_INFO_IDENTIFIER = Bytes.toBytes("i");

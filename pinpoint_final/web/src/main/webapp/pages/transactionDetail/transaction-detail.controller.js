@@ -63,7 +63,7 @@
 	        function parseTransactionDetail(result) {
 	            $scope.transactionDetail = result;
 	            $scope.logLinkEnable = result.logLinkEnable || false;
-	            $scope.loggingTransactionInfo = result.loggingTransactionInfo || false;
+	            $scope.loggingTransactionInfo = result.loggingTransactionInfo || true;
 	            $scope.logButtonName = result.logButtonName || "";
 	            $scope.logPageUrl = result.logPageUrl || "";
 	            $scope.logDisableMessage = result.disableButtonMessage || "";

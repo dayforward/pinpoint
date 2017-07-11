@@ -103,6 +103,7 @@ public class BusinessTransactionController {
         RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, focusTimestamp, agentId, spanId);
 
         TransactionInfoViewModel result = new TransactionInfoViewModel(transactionId, map.getNodes(), map.getLinks(), recordSet, spanResult.getCompleteTypeString(), logLinkEnable, logButtonName, logPageUrl, disableButtonMessage);
+
         return result;
     }
 
