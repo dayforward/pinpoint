@@ -14,6 +14,7 @@ public class BusinessLogServiceImpl implements BusinessLogService{
     BusinessLogDao businessLogDao;
     @Override
     public  String getBusinessLog(String transactionId,String spanId,long time){
+        transactionId = transactionId.replace('@','^');
         System.out.println("transactionId = " + transactionId + " ; spanId = " + spanId +  " ; time = " + time);
         List<String> lString =  businessLogDao.getBusinessLog(transactionId,spanId,time);
         StringBuilder sb = new StringBuilder();

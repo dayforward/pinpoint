@@ -63,7 +63,7 @@
 	        function parseTransactionDetail(result) {
 	            $scope.transactionDetail = result;
 	            $scope.logLinkEnable = result.logLinkEnable || false;
-	            $scope.loggingTransactionInfo = result.loggingTransactionInfo || true;
+	            $scope.loggingTransactionInfo = result.loggingTransactionInfo || false;
 	            $scope.logButtonName = result.logButtonName || "";
 	            $scope.logPageUrl = result.logPageUrl || "";
 	            $scope.logDisableMessage = result.disableButtonMessage || "";
@@ -115,11 +115,12 @@
 				}
 	        }
 			$scope.viewLog = function( url ) {
-	        	if ( $scope.loggingTransactionInfo === false ) {
+	        	if ( $scope.loggingTransactionInfo === false && $scope.logLinkEnable === false ) {
 	        		$("#customLogPopup").find("h4").html("Notice").end().find("div.modal-body").html( $scope.logDisableMessage ).end().modal("show");
 	        		return false;
 	        	} else {
-	        		window.open(url);
+
+	        		window.open(url.replace(/\^/g,"@"));
 	        	}
 	        };
 	
