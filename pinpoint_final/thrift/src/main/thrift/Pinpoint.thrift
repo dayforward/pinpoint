@@ -110,6 +110,28 @@ struct TAgentStatBatch {
     10: list<TAgentStat>        agentStats
 }
 
+struct TBussinessLogV1 {
+    1: optional string      time
+    2: optional string      threadName
+    3: optional string      logLevel
+    4: optional string      className
+    5: optional string      message
+    6: optional string     transactionId
+    7: optional string     spanId
+}
+
+struct TBussinessLog {
+    1: optional i64         timestamp
+    2: optional i64         collectInterval
+	10: list<TBussinessLogV1>   bussinessLogV1s
+}
+
+struct TBussinessLogBatch {
+	1: string                   agentId
+    2: i64                      startTimestamp
+    10: list<TBussinessLog>    bussinessLogs
+}
+
 struct TDataSource {
     1: i32                      id
     2: optional i16             serviceTypeCode

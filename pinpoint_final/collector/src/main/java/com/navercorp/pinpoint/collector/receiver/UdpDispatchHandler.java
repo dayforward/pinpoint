@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver;
 
+import com.navercorp.pinpoint.collector.handler.BussinessLogHandler;
 import com.navercorp.pinpoint.collector.handler.Handler;
 import com.navercorp.pinpoint.thrift.dto.*;
 
@@ -31,21 +32,27 @@ import org.springframework.beans.factory.annotation.Qualifier;
 public class UdpDispatchHandler extends AbstractDispatchHandler {
 
     @Autowired
-    @Qualifier("agentStatHandlerFactory")
+    @Qualifier("agentStatHandlerV2")
     private Handler agentStatHandler;
-
+    
+    @Autowired
+    @Qualifier("bussinessLogHandler")
+    private Handler bussinessLogHandler;
 
     public UdpDispatchHandler() {
         this.logger = LoggerFactory.getLogger(this.getClass());
     }
 
     @Override
-    Handler getHandler(TBase<?, ?> tBase) {
+    protected Handler getHandler(TBase<?, ?> tBase) {
 
         // To change below code to switch table make it a little bit faster.
         // FIXME (2014.08) Legacy - TAgentStats should not be sent over the wire.
         if (tBase instanceof TAgentStat || tBase instanceof TAgentStatBatch) {
             return agentStatHandler;
+        }
+        if (tBase instanceof TBussinessLog || tBase instanceof TBussinessLogBatch) {
+        	return bussinessLogHandler;
         }
         return null;
     }
