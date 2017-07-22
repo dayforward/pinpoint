@@ -32,7 +32,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 public class UdpDispatchHandler extends AbstractDispatchHandler {
 
     @Autowired
-    @Qualifier("agentStatHandlerV2")
+    @Qualifier("agentStatHandlerFactory")
     private Handler agentStatHandler;
     
     @Autowired
@@ -44,7 +44,7 @@ public class UdpDispatchHandler extends AbstractDispatchHandler {
     }
 
     @Override
-    protected Handler getHandler(TBase<?, ?> tBase) {
+    Handler getHandler(TBase<?, ?> tBase) {
 
         // To change below code to switch table make it a little bit faster.
         // FIXME (2014.08) Legacy - TAgentStats should not be sent over the wire.

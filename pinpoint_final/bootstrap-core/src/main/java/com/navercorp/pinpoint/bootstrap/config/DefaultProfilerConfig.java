@@ -154,6 +154,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private boolean propagateInterceptorException = false;
 
+    //[XINGUANG]:businesslog switch
+    private boolean businesslogEnable = false;
+
     public DefaultProfilerConfig() {
         this.properties = new Properties();
     }
@@ -392,6 +395,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return propagateInterceptorException;
     }
 
+    //[XINGUANG]:check if businesslog is enable
+    @Override
+    public boolean isBusinesslogEnable() { return businesslogEnable; }
+
     @Override
     public String getProfileInstrumentEngine() {
         return profileInstrumentEngine;
@@ -486,7 +493,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         
         this.propagateInterceptorException = readBoolean("profiler.interceptor.exception.propagate", false);
 
-
+        //[XINGUANG]:read value of businesslog switch from pinpoint.config
+        this.businesslogEnable = readBoolean("profiler.businesslog.enable",defaultValue:false);
 
         logger.info("configuration loaded successfully.");
     }
@@ -678,6 +686,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         builder.append(applicationTypeDetectOrder);
         builder.append(", disabledPlugins=");
         builder.append(disabledPlugins);
+        //[XINGUANG]:append businesslog switch to StringBuilder
+        builder.append(", businesslogEnable=");
+        builder.append(businesslogEnable);
         builder.append("}");
         return builder.toString();
     }

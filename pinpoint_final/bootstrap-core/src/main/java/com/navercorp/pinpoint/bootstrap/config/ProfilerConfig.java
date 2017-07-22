@@ -111,6 +111,9 @@ public interface ProfilerConfig {
 
     boolean isPropagateInterceptorException();
 
+    //[XINGUANG]:check if businesslog is enable
+    boolean isBusinesslogEnable();
+
     String getProfileInstrumentEngine();
 
     String readString(String propertyName, String defaultValue);
@@ -126,5 +129,8 @@ public interface ProfilerConfig {
     boolean readBoolean(String propertyName, boolean defaultValue);
 
     Map<String, String> readPattern(String propertyNamePatternRegex);
+
+    //[XINGUANG]:get dir of log of tomcat
+    String getTomcatLogDir();
 
 }

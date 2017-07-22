@@ -86,6 +86,9 @@ public class CollectorConfiguration implements InitializingBean {
     private String clusterListenIp;
     private int clusterListenPort;
 
+    //[XINGUANG]:businesslog switch
+    private boolean businesslogEnable;
+
     public String getTcpListenIp() {
         return tcpListenIp;
     }
@@ -286,6 +289,15 @@ public class CollectorConfiguration implements InitializingBean {
         this.clusterListenPort = clusterListenPort;
     }
 
+    //[XINGUANG]:check if businesslog switch is enable
+    public boolean isBusinesslogEnable() {
+        return businesslogEnable;
+    }
+    //[XINGUANG]:set value of businesslog switch
+    public void setBusinesslogEnable(boolean businesslogEnable) {
+        this.businesslogEnable = businesslogEnable;
+    }
+
     public void readConfigFile() {
 
         // may be useful for some kind of standalone like testcase. It should be modified to read a classpath for testcase.
@@ -358,6 +370,8 @@ public class CollectorConfiguration implements InitializingBean {
 
         this.clusterListenIp = readString(properties, "cluster.listen.ip", "");
         this.clusterListenPort = readInt(properties, "cluster.listen.port", -1);
+        //[XINGUANG]:read value of businesslog switch from pinpoint-collector.properties
+        this.businesslogEnable = readBoolean(properties,"collector.businesslog.enable");
     }
 
     private String readString(Properties properties, String propertyName, String defaultValue) {
@@ -428,7 +442,8 @@ public class CollectorConfiguration implements InitializingBean {
         sb.append(", clusterSessionTimeout=").append(clusterSessionTimeout);
         sb.append(", clusterListenIp=").append(clusterListenIp);
         sb.append(", clusterListenPort=").append(clusterListenPort);
-
+        //[XINGUANG]:append businesslog switch to string
+        sb.append(", businesslogEnable=").append(businesslogEnable);
         sb.append('}');
         return sb.toString();
     }
