@@ -110,7 +110,7 @@ struct TAgentStatBatch {
     10: list<TAgentStat>        agentStats
 }
 
-struct TBussinessLogV1 {
+struct TBusinessLogV1 {
     1: optional string      time
     2: optional string      threadName
     3: optional string      logLevel
@@ -120,16 +120,16 @@ struct TBussinessLogV1 {
     7: optional string     spanId
 }
 
-struct TBussinessLog {
+struct TBusinessLog {
     1: optional i64         timestamp
     2: optional i64         collectInterval
-	10: list<TBussinessLogV1>   bussinessLogV1s
+	10: list<TBusinessLogV1>   businessLogV1s
 }
 
-struct TBussinessLogBatch {
+struct TBusinessLogBatch {
 	1: string                   agentId
     2: i64                      startTimestamp
-    10: list<TBussinessLog>    bussinessLogs
+    10: list<TBusinessLog>    businessLogs
 }
 
 struct TDataSource {

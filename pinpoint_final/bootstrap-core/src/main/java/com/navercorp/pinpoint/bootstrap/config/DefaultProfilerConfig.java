@@ -156,7 +156,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     //[XINGUANG]:businesslog switch
     private boolean businesslogEnable = false;
-
+    
+  //[XINGUANG]:tomcat log dir
+    private String tomcatLogDir = null;
     public DefaultProfilerConfig() {
         this.properties = new Properties();
     }
@@ -494,7 +496,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.propagateInterceptorException = readBoolean("profiler.interceptor.exception.propagate", false);
 
         //[XINGUANG]:read value of businesslog switch from pinpoint.config
-        this.businesslogEnable = readBoolean("profiler.businesslog.enable",defaultValue:false);
+        this.businesslogEnable = readBoolean("profiler.businesslog.enable",false);
+        
+      //[XINGUANG]:read value of dir of log of tomcat from pinpoint.config
+        this.tomcatLogDir = readString("profiler.tomcatlog.dir",null);
 
         logger.info("configuration loaded successfully.");
     }
@@ -692,5 +697,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         builder.append("}");
         return builder.toString();
     }
+
+	@Override
+	public String getTomcatLogDir() {
+		// TODO Auto-generated method stub
+		 return tomcatLogDir;
+	}
 
 }

@@ -34,6 +34,7 @@ import com.navercorp.pinpoint.profiler.instrument.ASMBytecodeDumpService;
 import com.navercorp.pinpoint.profiler.instrument.BytecodeDumpTransformer;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
+import com.navercorp.pinpoint.profiler.monitor.BusinessLogMonitor;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
@@ -55,6 +56,8 @@ public class DefaultApplicationContext implements ApplicationContext {
 
     private final AgentInfoSender agentInfoSender;
     private final AgentStatMonitor agentStatMonitor;
+    //[XINGUANG]:BusinessLogMonitor
+    private final BusinessLogMonitor businessLogMonitor;
 
     private final TraceContext traceContext;
 
@@ -129,6 +132,8 @@ public class DefaultApplicationContext implements ApplicationContext {
 
         this.agentInfoSender = injector.getInstance(AgentInfoSender.class);
         this.agentStatMonitor = injector.getInstance(AgentStatMonitor.class);
+        //[XINGUANG]:initialization BusinessLogMonitor
+        this.businessLogMonitor = injector.getInstance(BusinessLogMonitor.class);
     }
 
     public ClassFileTransformer wrap(ClassFileTransformerDispatcher classFileTransformerDispatcher) {
@@ -201,6 +206,8 @@ public class DefaultApplicationContext implements ApplicationContext {
     public void start() {
         this.agentInfoSender.start();
         this.agentStatMonitor.start();
+        //[XINGUANG]:start business log collect monitor
+        this.businessLogMonitor.start();
     }
 
     @Override
@@ -211,6 +218,8 @@ public class DefaultApplicationContext implements ApplicationContext {
         // Need to process stop
         this.spanDataSender.stop();
         this.statDataSender.stop();
+        //[XINGUANG]:stop business log collect monitor
+        this.businessLogMonitor.stop();
 
         closeTcpDataSender();
     }

@@ -7,6 +7,10 @@
 package com.navercorp.pinpoint.thrift.dto.command;
 
 
+import java.util.Map;
+import java.util.HashMap;
+import org.apache.thrift.TEnum;
+
 public enum TThreadState implements org.apache.thrift.TEnum {
   NEW(0),
   RUNNABLE(1),

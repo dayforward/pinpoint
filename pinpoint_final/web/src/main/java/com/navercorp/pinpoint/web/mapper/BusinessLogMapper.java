@@ -1,47 +1,58 @@
 package com.navercorp.pinpoint.web.mapper;
 
-import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
-import com.navercorp.pinpoint.common.hbase.RowMapper;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.util.Bytes;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
+import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.BusinessLogDecoder;
+import com.navercorp.pinpoint.common.server.bo.serializer.stat.BusinessLogDecodingContext;
+import com.navercorp.pinpoint.common.server.bo.serializer.stat.BusinessLogHbaseOperationFactory;
+import com.navercorp.pinpoint.common.server.bo.stat.BusinessLogDataPoint;
 
 /**
  * Created by Administrator on 2017/6/14.
  */
 @Component
-public class BusinessLogMapper implements RowMapper<String> {
+public class BusinessLogMapper implements RowMapper<List<String>> {
+
+	@Autowired
+    private  BusinessLogHbaseOperationFactory hbaseOperationFactory;
+
+	@Autowired
+    private  BusinessLogDecoder<BusinessLogDataPoint> decoder;
 
     @Override
-    public String mapRow(Result result, int rowNum) throws Exception {
+    public List<String> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
-            return "";
+            return null;
         }
+        List<String> str = new ArrayList<String>();
+        final byte[] distributedRowKey = result.getRow();
+        final String agentId = this.hbaseOperationFactory.getAgentId(distributedRowKey);
         final Cell[] rawCells = result.rawCells();
         final List<String> agentIdList = new ArrayList<>(rawCells.length);
-        StringBuilder sb = new StringBuilder();
-        for (Cell cell : rawCells) {
-            // final String agentId = Bytes.toString(CellUtil.cloneQualifier(cell));
-        //    final String agentId = Bytes.toString(CellUtil.cloneValue(cell));
-           // final Buffer valueBuffer = new OffsetFixedBuffer(CellUtil.cloneValue(cell));
-            String agentId = Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
-            sb.append(agentId);
-        }
-        System.out.println("result = " + result);
-        System.out.println("sb = " + sb.toString());
-        return sb.toString();
-    }
-}
+        for (Cell cell : result.rawCells()) {
+            if (CellUtil.matchingFamily(cell, HBaseTables.MESSAGE_INFO)) {
+                Buffer qualifierBuffer = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
+                Buffer valueBuffer = new OffsetFixedBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+                long timestamp = this.decoder.getQualifier(qualifierBuffer);
+                BusinessLogDecodingContext decodingContext = new BusinessLogDecodingContext();
+                decodingContext.setAgentId(agentId);
+                str = this.decoder.decodeValue(valueBuffer, decodingContext);
+            }
 
+        }
+        return str;
+
+    }
+
+}

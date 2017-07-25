@@ -18,11 +18,12 @@ public class BusinessLogController {
     private BusinessLogService businessLogService;
     @RequestMapping(value = "/getBusinessLog")
     @ResponseBody
-    public String GetBusinessLog(@RequestParam (value= "transactionId", required=true) String transactionId,
+    public String GetBusinessLog(@RequestParam(value= "agentId",required=true) String agentId,
+                   @RequestParam (value= "transactionId", required=true) String transactionId,
                    @RequestParam(value= "spanId" , required=false) String spanId,
                    @RequestParam(value="time" , required=true) long time ) {
 
         // you should implement the logic to retrieve your agent’s logs.
-        return businessLogService.getBusinessLog(transactionId,spanId,time);
+        return businessLogService.getBusinessLog(agentId,transactionId,spanId,time);
     }
 }

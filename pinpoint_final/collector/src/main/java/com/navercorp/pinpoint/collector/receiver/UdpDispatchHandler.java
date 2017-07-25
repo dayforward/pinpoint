@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver;
 
-import com.navercorp.pinpoint.collector.handler.BussinessLogHandler;
+import com.navercorp.pinpoint.collector.handler.BusinessLogHandler;
 import com.navercorp.pinpoint.collector.handler.Handler;
 import com.navercorp.pinpoint.thrift.dto.*;
 
@@ -36,8 +36,8 @@ public class UdpDispatchHandler extends AbstractDispatchHandler {
     private Handler agentStatHandler;
     
     @Autowired
-    @Qualifier("bussinessLogHandler")
-    private Handler bussinessLogHandler;
+    @Qualifier("businessLogHandler")
+    private Handler businessLogHandler;
 
     public UdpDispatchHandler() {
         this.logger = LoggerFactory.getLogger(this.getClass());
@@ -51,8 +51,8 @@ public class UdpDispatchHandler extends AbstractDispatchHandler {
         if (tBase instanceof TAgentStat || tBase instanceof TAgentStatBatch) {
             return agentStatHandler;
         }
-        if (tBase instanceof TBussinessLog || tBase instanceof TBussinessLogBatch) {
-        	return bussinessLogHandler;
+        if (tBase instanceof TBusinessLog || tBase instanceof TBusinessLogBatch) {
+        	return businessLogHandler;
         }
         return null;
     }
