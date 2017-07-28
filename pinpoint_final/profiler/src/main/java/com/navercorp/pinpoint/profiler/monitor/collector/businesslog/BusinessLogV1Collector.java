@@ -2,28 +2,14 @@ package com.navercorp.pinpoint.profiler.monitor.collector.businesslog;
 
 import static java.util.regex.Pattern.compile;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.thrift.dto.TBusinessLogV1;
-//import javafx.util.Pair;
 
-import javafx.util.Pair;
 
 /**
  * Created by Administrator on 2017/7/21.
@@ -41,12 +27,13 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
     static final String TXSPAN_END_FIELD_PATTEN = "*]$";
     private List<String> businessLogList;
     private final static int linePerLogPerBatch = 1000;
-    private HashMap<String, Pair<Date, Long>> dailyLogLineMap = new HashMap<String, Pair<Date, Long>>();
+    //private HashMap<String, Pair<Date, Long>> dailyLogLineMap = new HashMap<String, Pair<Date, Long>>();
 
     private enum EnumField {
         TIME, THREAD, LOGLEVEL, CLASS, TXSPANBEGIN, TXSPANEND, MESSAGE
     }
 
+    @Inject
     public BusinessLogV1Collector(ProfilerConfig profilerConfig) {
         this.profilerConfig = profilerConfig;
         this.nextLine = 0;
@@ -55,10 +42,15 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
 
     @Override
     public List<TBusinessLogV1> collect() {
-        return getBusinessLogV1List();
+    	TBusinessLogV1 tBusinessLogV1 = new TBusinessLogV1();
+    	tBusinessLogV1.setMessage("this is a test message");
+    	List<TBusinessLogV1> tBusinessLogV1s = new ArrayList<TBusinessLogV1>();
+    	tBusinessLogV1s.add(tBusinessLogV1);
+    	return tBusinessLogV1s;
+        //return getBusinessLogV1List();
     }
 
-    private File[] listFiles(final Pattern pattern, String logDirPath) {
+    /*private File[] listFiles(final Pattern pattern, String logDirPath) {
         File logDir = new File(logDirPath);
         return logDir.listFiles(new FilenameFilter() {
             @Override
@@ -354,5 +346,5 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
         generateLogLineMap();
         //[XINGUANG] read BusinessLogList
         return readLogFromBusinessLogList();
-    }
+    }*/
 }

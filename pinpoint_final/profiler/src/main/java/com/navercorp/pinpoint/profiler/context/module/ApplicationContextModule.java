@@ -62,6 +62,7 @@ import com.navercorp.pinpoint.profiler.context.provider.AgentInformationProvider
 import com.navercorp.pinpoint.profiler.context.provider.AgentStartTimeProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ApiMetaDataServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ApplicationServerTypeProvider;
+import com.navercorp.pinpoint.profiler.context.provider.BusinessLogVXMetaCollectorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ClassFileTransformerDispatcherProvider;
 import com.navercorp.pinpoint.profiler.context.provider.CommandDispatcherProvider;
 import com.navercorp.pinpoint.profiler.context.provider.DataSourceMonitorRegistryServiceProvider;
@@ -102,9 +103,15 @@ import com.navercorp.pinpoint.profiler.metadata.DefaultStringMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
+import com.navercorp.pinpoint.profiler.monitor.collector.BusinessLogMetaCollector;
+import com.navercorp.pinpoint.profiler.monitor.collector.BusinessLogTotalCollector;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
+import com.navercorp.pinpoint.profiler.monitor.BusinessLogMonitor;
 import com.navercorp.pinpoint.profiler.monitor.DefaultAgentStatMonitor;
+import com.navercorp.pinpoint.profiler.monitor.DefaultBusinessLogMonitor;
 import com.navercorp.pinpoint.profiler.monitor.collector.activethread.ActiveTraceMetricCollector;
+import com.navercorp.pinpoint.profiler.monitor.collector.businesslog.BusinessLogV1Collector;
+import com.navercorp.pinpoint.profiler.monitor.collector.businesslog.BusinessLogVXMetaCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.cpu.CpuLoadMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.datasource.DataSourceMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.jvmgc.JvmGcMetricCollector;
@@ -123,6 +130,8 @@ import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
+import com.navercorp.pinpoint.thrift.dto.TBusinessLog;
+import com.navercorp.pinpoint.thrift.dto.TBusinessLogV1;
 
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
@@ -208,6 +217,8 @@ public class ApplicationContextModule extends AbstractModule {
         bind(JvmInformation.class).toProvider(JvmInformationProvider.class).in(Scopes.SINGLETON);
         bind(AgentInfoSender.class).toProvider(AgentInfoSenderProvider.class).in(Scopes.SINGLETON);
         bind(AgentStatMonitor.class).to(DefaultAgentStatMonitor.class).in(Scopes.SINGLETON);
+        //[XINGUANG]:bind BusinessLogMonitor
+        bind(BusinessLogMonitor.class).to(DefaultBusinessLogMonitor.class).in(Scopes.SINGLETON);
     }
 
     private void bindTraceComponent() {
@@ -272,5 +283,19 @@ public class ApplicationContextModule extends AbstractModule {
         bind(new TypeLiteral<AgentStatMetricCollector<TAgentStat>>() {})
                 .annotatedWith(Names.named("AgentStatCollector"))
                 .to(AgentStatCollector.class).in(Scopes.SINGLETON);
+        
+       bind(BusinessLogVXMetaCollector.class).toProvider(BusinessLogVXMetaCollectorProvider.class).in(Scopes.SINGLETON);
+        
+        /*bind(new TypeLiteral<BusinessLogVXMetaCollector<TBusinessLogV1>>() {})
+       	.annotatedWith(Names.named("BusinessLogV1Collector"))
+       	.to(BusinessLogV1Collector.class).in(Scopes.SINGLETON);*/
+        
+        //[XINGUANG]:bind BusinessLogTotalCollector
+        bind(new TypeLiteral<BusinessLogMetaCollector<TBusinessLog>>() {})
+        	.annotatedWith(Names.named("BusinessLogTotalCollector"))
+        	.to(BusinessLogTotalCollector.class).in(Scopes.SINGLETON);
+        
+        
+        
     }
 }

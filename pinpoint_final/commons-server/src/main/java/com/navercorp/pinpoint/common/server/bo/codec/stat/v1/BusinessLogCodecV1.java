@@ -3,7 +3,6 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.v1;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.xml.internal.fastinfoset.algorithm.LongEncodingAlgorithm;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
