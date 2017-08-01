@@ -36,12 +36,13 @@ public class HbaseBusinessLogV1Dao implements BusinessLogDao<BusinessLogV1Bo>{
 		if (businessLogV1Bo == null) {
 			return;
 		}
+
 				
-		List<Put> businessLogPut = businessLogHbaseOperationFactory.createPuts(agentId, BusinessLogType.BUSSINESS_LOG_V1, businessLogV1Bo, this.businessLogV1Serializer);
+		List<Put> businessLogPut = businessLogHbaseOperationFactory.createPuts(agentId, BusinessLogType.BUSINESS_LOG_V1, businessLogV1Bo, this.businessLogV1Serializer);
 		if (!businessLogPut.isEmpty()) {
-            List<Put> rejectedPuts = this.hbaseTemplate.asyncPut(HBaseTables.BUSSINESS_LOG, businessLogPut);
+            List<Put> rejectedPuts = this.hbaseTemplate.asyncPut(HBaseTables.BUSINESS_LOG, businessLogPut);
             if (CollectionUtils.isNotEmpty(rejectedPuts)) {
-                this.hbaseTemplate.put(HBaseTables.BUSSINESS_LOG, rejectedPuts);
+                this.hbaseTemplate.put(HBaseTables.BUSINESS_LOG, rejectedPuts);
             }
         }
 	}

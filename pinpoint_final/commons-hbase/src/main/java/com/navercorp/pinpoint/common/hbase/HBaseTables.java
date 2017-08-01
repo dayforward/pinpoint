@@ -39,8 +39,8 @@ public final class HBaseTables {
     @Deprecated public static final TableName AGENT_STAT = TableName.valueOf("AgentStat");
     public static final TableName AGENT_STAT_VER2 = TableName.valueOf("AgentStatV2");
     
-    public static final TableName BUSSINESS_LOG = TableName.valueOf("BusinessLog");
-    public static final byte[] BUSSINESS_MESSAGEINFO = Bytes.toBytes("MessageInfo");
+    public static final TableName BUSINESS_LOG = TableName.valueOf("BusinessLog");
+    public static final byte[] BUSINESS_MESSAGEINFO = Bytes.toBytes("MessageInfo");
 
     public static final byte[] AGENT_STAT_CF_STATISTICS = Bytes.toBytes("S"); // agent statistics column family
     // FIXME (2014.08) Legacy column for storing serialzied TAgentStat Thrift DTO.

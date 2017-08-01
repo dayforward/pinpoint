@@ -22,36 +22,40 @@ import com.navercorp.pinpoint.common.server.bo.stat.BusinessLogDataPoint;
  * Created by Administrator on 2017/6/14.
  */
 @Component
-public class BusinessLogMapper implements RowMapper<List<String>> {
+public class BusinessLogMapper implements RowMapper<String> {
 
 	@Autowired
     private  BusinessLogHbaseOperationFactory hbaseOperationFactory;
 
-	@Autowired
+	//@Autowired
     private  BusinessLogDecoder<BusinessLogDataPoint> decoder;
 
     @Override
-    public List<String> mapRow(Result result, int rowNum) throws Exception {
+    public String mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return null;
         }
-        List<String> str = new ArrayList<String>();
+        List<String> strList = new ArrayList<String>();
+        StringBuilder str = new StringBuilder();
         final byte[] distributedRowKey = result.getRow();
         final String agentId = this.hbaseOperationFactory.getAgentId(distributedRowKey);
         final Cell[] rawCells = result.rawCells();
         final List<String> agentIdList = new ArrayList<>(rawCells.length);
         for (Cell cell : result.rawCells()) {
-            if (CellUtil.matchingFamily(cell, HBaseTables.MESSAGE_INFO)) {
+            if (CellUtil.matchingFamily(cell, HBaseTables.BUSINESS_MESSAGEINFO)) {
                 Buffer qualifierBuffer = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
                 Buffer valueBuffer = new OffsetFixedBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
                 long timestamp = this.decoder.getQualifier(qualifierBuffer);
                 BusinessLogDecodingContext decodingContext = new BusinessLogDecodingContext();
                 decodingContext.setAgentId(agentId);
-                str = this.decoder.decodeValue(valueBuffer, decodingContext);
+                strList = this.decoder.decodeValue(valueBuffer, decodingContext);
+                for(String s : strList) {
+                	str.append(s).append("\r\n");
+                }
             }
 
         }
-        return str;
+        return str.toString();
 
     }
 

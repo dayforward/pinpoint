@@ -2,13 +2,30 @@ package com.navercorp.pinpoint.profiler.monitor.collector.businesslog;
 
 import static java.util.regex.Pattern.compile;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+
 
 import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.common.util.Pair;
 import com.navercorp.pinpoint.thrift.dto.TBusinessLogV1;
+
 
 
 /**
@@ -18,8 +35,9 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
 
     private ProfilerConfig profilerConfig;
     private long nextLine;
-    static final Pattern BUSINESS_LOG_PATTERN = compile("BUSSINESS_LOG*.log");
-    static final String TIME_FIELD_PATTEN = "^[[1-9]\\\\d{3}\\\\-(0?[1-9]|1[0-2])\\\\-(0?[1-9]|[12]\\\\d|3[01])\\\\s*(0?[1-9]|1\\\\d|2[0-3])(\\\\:(0?[1-9]|[1-5]\\\\d)){2}]$";
+    static final Pattern BUSINESS_LOG_PATTERN = compile("^BUSINESS_LOG*\\.log$");
+    //static final String TIME_FIELD_PATTEN = "^[[1-9]\\\\d{3}\\\\-(0?[1-9]|1[0-2])\\\\-(0?[1-9]|[12]\\\\d|3[01])\\\\s*(0?[1-9]|1\\\\d|2[0-3])(\\\\:(0?[1-9]|[1-5]\\\\d)){2}]$";
+    static final String TIME_FIELD_PATTEN = "([0-9]{3}[1-9]|[0-9]{2}[1-9][0-9]{1}|[0-9]{1}[1-9][0-9]{2}|[1-9][0-9]{3})-(((0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01]))|((0[469]|11)-(0[1-9]|[12][0-9]|30))|(02-(0[1-9]|[1][0-9]|2[0-8])))";
     static final String THREAD_FIELD_PATTEN = "^[*]$";
     static final String LOG_LEVEL_FIELD_PATTEN = "^[a-zA-Z]{4,}";
     static final String CLASS_FIELD_PATTEN = "^[0-9a-zA-Z][.[0-9a-zA-Z]]*";
@@ -27,7 +45,7 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
     static final String TXSPAN_END_FIELD_PATTEN = "*]$";
     private List<String> businessLogList;
     private final static int linePerLogPerBatch = 1000;
-    //private HashMap<String, Pair<Date, Long>> dailyLogLineMap = new HashMap<String, Pair<Date, Long>>();
+    private HashMap<String, Pair<Date, Long>> dailyLogLineMap = new HashMap<String, Pair<Date, Long>>();
 
     private enum EnumField {
         TIME, THREAD, LOGLEVEL, CLASS, TXSPANBEGIN, TXSPANEND, MESSAGE
@@ -44,6 +62,8 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
     public List<TBusinessLogV1> collect() {
     	TBusinessLogV1 tBusinessLogV1 = new TBusinessLogV1();
     	tBusinessLogV1.setMessage("this is a test message");
+    	tBusinessLogV1.setSpanId("testSpanId");
+    	tBusinessLogV1.setTransactionId("testTransactionId");
     	List<TBusinessLogV1> tBusinessLogV1s = new ArrayList<TBusinessLogV1>();
     	tBusinessLogV1s.add(tBusinessLogV1);
     	return tBusinessLogV1s;
@@ -57,7 +77,8 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
             public boolean accept(File dir, String fileName) {
                 Matcher matcher = pattern.matcher(fileName);
                 if (matcher.matches()) {
-                    businessLogList.add(fileName);
+                	System.out.println(fileName);
+                    //businessLogList.add(fileName);
                     return true;
                 }
                 return false;
@@ -213,14 +234,15 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
                 }
                 String[] lineTxts = lineTxt.split(" ");
                 nextLine++;
-                if (firstLineInOneMessage) {
-                    if (!checkTimePatternMeet(lineTxts[0])) {
+                String time  = lineTxts[0] + " " + lineTxts[1];
+                if (firstLineInOneMessage) {               	
+                    if (!checkTimePatternMeet(time)) {
                         //corrupt log format
                         return new Pair(line, null);
                     }
                     firstLineInOneMessage = false;
                 } else {
-                    if (checkTimePatternMeet(lineTxts[0]))
+                    if (checkTimePatternMeet(time))
                         break;
                 }
                 linesOfTxts.add(lineTxts);
@@ -317,34 +339,55 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
             Pair<Date, Long> dailyLine = dailyLogLineMap.get(businessLogV1);
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
             if (dailyLine == null) {               
-                try {
-                    Date date = df.parse(df.format(new Date()));
-                    dailyLogLineMap.put(businessLogV1, new Pair<Date, Long>(date, 0l));
-                } catch (ParseException e1) {
-                    e1.printStackTrace();
-                }
+                    Date date;
+					try {
+						date = df.parse(df.format(new Date()));
+						dailyLogLineMap.put(businessLogV1, new Pair<Date, Long>(date, 0l));
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}               
             } else {
                 Date originDate = dailyLine.getKey();
-                try {
-                    Date date = df.parse(df.format(new Date()));
-                    if (originDate.before(date)) {
-                        dailyLogLineMap.put(businessLogV1, new Pair<Date, Long>(date, 0l));
-                    }
-                } catch (ParseException e1) {
-                    e1.printStackTrace();
-                }
-
+                    Date date;
+					try {
+						date = df.parse(df.format(new Date()));
+						if (originDate.before(date)) {
+	                        dailyLogLineMap.put(businessLogV1, new Pair<Date, Long>(date, 0l));
+	                    }
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}                   
             }
         }
+    }
+    
+    private void generateBusinessLogList(File[] files, String tomcatLogDir) {
+    	for (File file : files) {
+    		String fileName = file.toString();
+    		StringBuilder filePath = new StringBuilder();
+    		filePath.append(tomcatLogDir).append("/").append(fileName);
+    		businessLogList.add(filePath.toString());
+    		businessLogList.add(file.toString());
+    	}
     }
 
     private List<TBusinessLogV1> getBusinessLogV1List() {
         //[XINGUANG] retrives logs from tomcat log dir
-        String tomcatLogDir = profilerConfig.getTomcatLogDir();
+    	String tomcatLogDir = "D:/logs";
+        //String tomcatLogDir = profilerConfig.getTomcatLogDir();
         businessLogList.clear();
-        listFiles(BUSINESS_LOG_PATTERN, tomcatLogDir);
+        File[] files = listFiles(BUSINESS_LOG_PATTERN, tomcatLogDir);
+        generateBusinessLogList(files, tomcatLogDir);
         generateLogLineMap();
         //[XINGUANG] read BusinessLogList
         return readLogFromBusinessLogList();
+    }
+    
+    public static void main(String[] args) {
+    	BusinessLogV1Collector b = new BusinessLogV1Collector(null);
+    	b.getBusinessLogV1List();
     }*/
+    
 }

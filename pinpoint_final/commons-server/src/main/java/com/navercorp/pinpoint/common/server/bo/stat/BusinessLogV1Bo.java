@@ -116,7 +116,7 @@ public class BusinessLogV1Bo implements BusinessLogDataPoint{
 	@Override
 	public BusinessLogType geTBusinessLogType() {
 		// TODO Auto-generated method stub
-		return BusinessLogType.BUSSINESS_LOG_V1;
+		return BusinessLogType.BUSINESS_LOG_V1;
 	}
 
 

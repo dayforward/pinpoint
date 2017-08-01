@@ -32,7 +32,7 @@ public class BusinessLogSerializer<T extends BusinessLogDataPoint> implements Hb
         long currentTime = System.currentTimeMillis();
 		ByteBuffer qualifierBuffer = this.encoder.getQualifierBuffer(currentTime);
         ByteBuffer valueBuffer = this.encoder.encodeValue(BusinessLogV1Bo);
-        put.addColumn(HBaseTables.BUSSINESS_MESSAGEINFO, qualifierBuffer, HConstants.LATEST_TIMESTAMP, valueBuffer);
+        put.addColumn(HBaseTables.BUSINESS_MESSAGEINFO, qualifierBuffer, HConstants.LATEST_TIMESTAMP, valueBuffer);
 	}
 
 }

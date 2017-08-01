@@ -1,20 +1,20 @@
 package com.navercorp.pinpoint.web.controller;
 
 
-import com.navercorp.pinpoint.web.service.BusinessLogService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.navercorp.pinpoint.web.service.BusinessLogService;
 /**
  * Created by Administrator on 2017/6/12.
  */
 @Controller
 public class BusinessLogController {
 
-   @Autowired
+    @Autowired
     private BusinessLogService businessLogService;
     @RequestMapping(value = "/getBusinessLog")
     @ResponseBody
@@ -24,6 +24,7 @@ public class BusinessLogController {
                    @RequestParam(value="time" , required=true) long time ) {
 
         // you should implement the logic to retrieve your agent’s logs.
-        return businessLogService.getBusinessLog(agentId,transactionId,spanId,time);
+        String str = businessLogService.getBusinessLog(agentId,transactionId,spanId,time);
+        return str;
     }
 }

@@ -81,4 +81,8 @@
     <bean id="sqlMetaDataMapper2" class="com.navercorp.pinpoint.web.mapper.SqlMetaDataMapper">
         <property name="rowKeyDistributorByHashPrefix" ref="metadataRowKeyDistributor2"></property>
     </bean>
+    
+    <!-- <bean id="businessLogController" class="com.navercorp.pinpoint.web.controller.BusinessLogController">
+    	<property name=""></property>
+    </bean> -->
 </beans>

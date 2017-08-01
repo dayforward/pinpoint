@@ -2,7 +2,7 @@ package com.navercorp.pinpoint.common.server.bo.stat;
 
 public enum BusinessLogType {
 	UNKNOWN(0, "Unknown"),
-	BUSSINESS_LOG_V1((byte) 1, "bussiness_log_v1");
+	BUSINESS_LOG_V1((byte) 1, "business_log_v1");
 	
 	public static final int TYPE_CODE_BYTE_LENGTH = 1;
 
