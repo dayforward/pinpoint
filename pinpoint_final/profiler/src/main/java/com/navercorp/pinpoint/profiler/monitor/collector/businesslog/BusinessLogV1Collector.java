@@ -35,9 +35,9 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
 
     private ProfilerConfig profilerConfig;
     private long nextLine;
-    static final Pattern BUSINESS_LOG_PATTERN = compile("^BUSINESS_LOG*\\.log$");
+    static final Pattern BUSINESS_LOG_PATTERN = compile("^BUSINESS_LOG_[A-Za-z]*.log$");
     //static final String TIME_FIELD_PATTEN = "^[[1-9]\\\\d{3}\\\\-(0?[1-9]|1[0-2])\\\\-(0?[1-9]|[12]\\\\d|3[01])\\\\s*(0?[1-9]|1\\\\d|2[0-3])(\\\\:(0?[1-9]|[1-5]\\\\d)){2}]$";
-    static final String TIME_FIELD_PATTEN = "([0-9]{3}[1-9]|[0-9]{2}[1-9][0-9]{1}|[0-9]{1}[1-9][0-9]{2}|[1-9][0-9]{3})-(((0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01]))|((0[469]|11)-(0[1-9]|[12][0-9]|30))|(02-(0[1-9]|[1][0-9]|2[0-8])))";
+    static final String TIME_FIELD_PATTEN = "^\\[([0-9]{3}[1-9]|[0-9]{2}[1-9][0-9]{1}|[0-9]{1}[1-9][0-9]{2}|[1-9][0-9]{3})-(((0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01]))|((0[469]|11)-(0[1-9]|[12][0-9]|30))|(02-(0[1-9]|[1][0-9]|2[0-8]))) ([0-1]?[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])\\]$";
     static final String THREAD_FIELD_PATTEN = "^[*]$";
     static final String LOG_LEVEL_FIELD_PATTEN = "^[a-zA-Z]{4,}";
     static final String CLASS_FIELD_PATTEN = "^[0-9a-zA-Z][.[0-9a-zA-Z]]*";
@@ -45,6 +45,8 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
     static final String TXSPAN_END_FIELD_PATTEN = "*]$";
     private List<String> businessLogList;
     private final static int linePerLogPerBatch = 1000;
+    String[] nextLineContext = null;
+    boolean lastLine = false;
     private HashMap<String, Pair<Date, Long>> dailyLogLineMap = new HashMap<String, Pair<Date, Long>>();
 
     private enum EnumField {
@@ -60,17 +62,18 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
 
     @Override
     public List<TBusinessLogV1> collect() {
-    	TBusinessLogV1 tBusinessLogV1 = new TBusinessLogV1();
+    	/*TBusinessLogV1 tBusinessLogV1 = new TBusinessLogV1();
     	tBusinessLogV1.setMessage("this is a test message");
     	tBusinessLogV1.setSpanId("testSpanId");
     	tBusinessLogV1.setTransactionId("testTransactionId");
     	List<TBusinessLogV1> tBusinessLogV1s = new ArrayList<TBusinessLogV1>();
     	tBusinessLogV1s.add(tBusinessLogV1);
-    	return tBusinessLogV1s;
-        //return getBusinessLogV1List();
+    	return tBusinessLogV1s;*/
+        
+        return getBusinessLogV1List();
     }
 
-    /*private File[] listFiles(final Pattern pattern, String logDirPath) {
+    private File[] listFiles(final Pattern pattern, String logDirPath) {
         File logDir = new File(logDirPath);
         return logDir.listFiles(new FilenameFilter() {
             @Override
@@ -123,59 +126,66 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
     }
 
     List<String> generateFieldList(List<String[]> linesOfTxts) {
-        List<String> stringList = new ArrayList<String>();
-        StringBuilder messageBuilder = new StringBuilder();
-        StringBuilder txSpanBuilder = new StringBuilder();
-        EnumField state = EnumField.TIME;
-        for (String[] stringArray : linesOfTxts) {
-            for (String string : stringArray) {
-                switch (state) {
-                    case TIME:
-                        if (checkTimePatternMeet(string) == false)
-                            return null;
-                        stringList.add(string);
-                        state = EnumField.THREAD;
-                        break;
-                    case THREAD:
-                        if (checkThreadPatternMeet(string) == false)
-                            return null;
-                        stringList.add(string);
-                        state = EnumField.LOGLEVEL;
-                        break;
-                    case LOGLEVEL:
-                        if (checkLogLevelMeet(string) == false)
-                            return null;
-                        stringList.add(string);
-                        state = EnumField.CLASS;
-                        break;
-                    case CLASS:
-                        if (checkClassFieldMeet(string) == false)
-                            return null;
-                        stringList.add(string);
-                        state = EnumField.TXSPANBEGIN;
-                        break;
-                    case TXSPANBEGIN:
-                        if (checkTxSpanBeginMeet(string) == false)
-                            return null;
-                        txSpanBuilder.append(string);
-                        state = EnumField.TXSPANEND;
-                        break;
-                    case TXSPANEND:
-                        txSpanBuilder.append(string);
-                        if (checkTxSpanEndMeet(string) == true)
-                            state = EnumField.MESSAGE;
-                        break;
-                    case MESSAGE:
-                        messageBuilder.append(string);
-                }
-            }
-        }
+    	List<String> linesList = new ArrayList<String>();
+    	for (String[] strArray : linesOfTxts) {
+    		for (String str : strArray) {
+    			linesList.add(str);
+    		}
+    	}
+    	//删除多余的字符串
+    	linesList.remove(1);  	
+        linesList.remove(4);
+        linesList.remove(4);
+        linesList.remove(5);
+        linesList.remove(5);
+       /* EnumField state = EnumField.TIME;
+        for (String string : linesList) {
+        	switch (state) {
+            case TIME:
+                if (checkTimePatternMeet(string) == false)
+                    return null;
+                stringList.add(string);
+                state = EnumField.THREAD;
+                break;
+            case THREAD:
+                if (checkThreadPatternMeet(string) == false)
+                    return null;
+                stringList.add(string);
+                state = EnumField.LOGLEVEL;
+                break;
+            case LOGLEVEL:
+                if (checkLogLevelMeet(string) == false)
+                    return null;
+                stringList.add(string);
+                state = EnumField.CLASS;
+                break;
+            case CLASS:
+                if (checkClassFieldMeet(string) == false)
+                    return null;
+                stringList.add(string);
+                state = EnumField.TXSPANBEGIN;
+                break;
+            case TXSPANBEGIN:
+                if (checkTxSpanBeginMeet(string) == false)
+                    return null;
+                txSpanBuilder.append(string);
+                state = EnumField.TXSPANEND;
+                break;
+            case TXSPANEND:
+                txSpanBuilder.append(string);
+                if (checkTxSpanEndMeet(string) == true)
+                    state = EnumField.MESSAGE;
+                break;
+            case MESSAGE:
+                messageBuilder.append(string);
+        	}
+        }   
         if (state == EnumField.MESSAGE) {
             stringList.add(txSpanBuilder.toString());
             stringList.add(messageBuilder.toString());
         } else
-            return null;
-        return stringList;
+            return null;*/
+        return linesList;
     }
 
     Pair<String, String> retriveTractionIdFromField(String string) {
@@ -198,7 +208,7 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
     String retriveMessageFormField(List<String> fieldList, int index) {
         StringBuilder sb = new StringBuilder();
         for(int i = index; i < fieldList.size(); i++)
-            sb.append(fieldList.get(i));
+            sb.append(fieldList.get(i)).append(" ");
         return sb.toString();
     }
 
@@ -208,10 +218,10 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
         tBusinessLogV1.setThreadName(fieldList.get(1));
         tBusinessLogV1.setLogLevel(fieldList.get(2));
         tBusinessLogV1.setClassName(fieldList.get(3));
-        Pair<String, String> txSpanPair = retriveTractionIdFromField(fieldList.get(4));
-        tBusinessLogV1.setTransactionId(txSpanPair.getKey());
-        tBusinessLogV1.setSpanId(txSpanPair.getValue());
-        tBusinessLogV1.setMessage(retriveMessageFormField(fieldList, 4));
+        //Pair<String, String> txSpanPair = retriveTractionIdFromField(fieldList.get(4));
+        tBusinessLogV1.setTransactionId(fieldList.get(4));
+        tBusinessLogV1.setSpanId(fieldList.get(5).split("]")[0]);
+        tBusinessLogV1.setMessage(retriveMessageFormField(fieldList, 6));
         return tBusinessLogV1;
     }
 
@@ -226,30 +236,43 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
         Long nextLine = line;
         String lineTxt;
         boolean firstLineInOneMessage = true;
-        List<String[]> linesOfTxts = new ArrayList<String[]>();
+        List<String[]> linesOfTxts = new ArrayList<String[]>();        
         while (true) {
-            try {
-                if ((lineTxt = reader.readLine()) == null) {
-                    return new Pair<Long, TBusinessLogV1>(line, null);
-                }
-                String[] lineTxts = lineTxt.split(" ");
-                nextLine++;
-                String time  = lineTxts[0] + " " + lineTxts[1];
-                if (firstLineInOneMessage) {               	
-                    if (!checkTimePatternMeet(time)) {
-                        //corrupt log format
-                        return new Pair(line, null);
-                    }
-                    firstLineInOneMessage = false;
-                } else {
-                    if (checkTimePatternMeet(time))
-                        break;
-                }
-                linesOfTxts.add(lineTxts);
-            } catch (IOException e1) {
-                e1.printStackTrace();
-                return new Pair<Long, TBusinessLogV1>(line, null);
-            }
+        	if (nextLineContext != null) {
+        		linesOfTxts.add(nextLineContext);
+        		nextLineContext = null;
+        		firstLineInOneMessage = false;
+        	} else {        	
+	            try {
+	                if ((lineTxt = reader.readLine()) == null) {
+	                    //return new Pair<Long, TBusinessLogV1>(line, null);
+	                	lastLine = true;
+	                	break;
+	                }
+	                String[] lineTxts = lineTxt.split(" ");
+	                nextLine++;
+	                String time  = lineTxts[0] + " " + lineTxts[1];
+	                lineTxts[0] = time;
+	                if (firstLineInOneMessage) {                 	
+	                    if (!checkTimePatternMeet(time)) {
+	                        //corrupt log format
+	                        return new Pair(line, null);
+	                    }
+	                    firstLineInOneMessage = false;
+	                } else {
+	                    if (checkTimePatternMeet(time)) {
+	                    	nextLineContext = lineTxts;
+	                    	break;
+	                    }
+	                        
+	                }
+	                linesOfTxts.add(lineTxts);   
+	            } catch (IOException e1) {
+	                e1.printStackTrace();
+	                return new Pair<Long, TBusinessLogV1>(line, null);
+	            }
+        	}
+            
         }
 
         TBusinessLogV1 tBusinessLogV1 = generateTBusinessLogV1FromStringList(linesOfTxts);
@@ -277,11 +300,6 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
 
     private Pair<Long, TBusinessLogV1> readOneLogFromLine(BufferedReader reader, String businessLogV1, Long line) {
 
-        //[XINGUANG] skip prelines
-        boolean flag = skipPreLines(reader, businessLogV1, line);
-        if (!flag) {
-            return new Pair<Long, TBusinessLogV1>(line, null);
-        }
         return readOneLogFromLineInner(reader, businessLogV1, line);
     }
 
@@ -310,7 +328,16 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
         //[XINGUANG] get line number
         Pair<Date, Long> dateLinePair = dailyLogLineMap.get(businessLogV1);
         Long line = dateLinePair.getValue();
+        
+        //[XINGUANG] skip prelines
+        boolean flag = skipPreLines(reader, businessLogV1, line);
+        /*if (!flag) {
+            return new Pair<Long, TBusinessLogV1>(line, null);
+        }*/        
         for (int i = 0; i < linePerLogPerBatch; i++) {
+        	if(lastLine) {
+        		break;
+        	}
             Pair<Long, TBusinessLogV1> tBusinessLogV1LinePair = readOneLogFromLine(reader, businessLogV1, line);
             if (tBusinessLogV1LinePair.getKey() != line) {
                 line = tBusinessLogV1LinePair.getKey();
@@ -365,18 +392,14 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
     
     private void generateBusinessLogList(File[] files, String tomcatLogDir) {
     	for (File file : files) {
-    		String fileName = file.toString();
-    		StringBuilder filePath = new StringBuilder();
-    		filePath.append(tomcatLogDir).append("/").append(fileName);
-    		businessLogList.add(filePath.toString());
     		businessLogList.add(file.toString());
     	}
     }
 
     private List<TBusinessLogV1> getBusinessLogV1List() {
         //[XINGUANG] retrives logs from tomcat log dir
-    	String tomcatLogDir = "D:/logs";
-        //String tomcatLogDir = profilerConfig.getTomcatLogDir();
+    	//String tomcatLogDir = "D:/logs";
+        String tomcatLogDir = profilerConfig.getTomcatLogDir();
         businessLogList.clear();
         File[] files = listFiles(BUSINESS_LOG_PATTERN, tomcatLogDir);
         generateBusinessLogList(files, tomcatLogDir);
@@ -385,9 +408,10 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
         return readLogFromBusinessLogList();
     }
     
-    public static void main(String[] args) {
+   /* public static void main(String[] args) {
     	BusinessLogV1Collector b = new BusinessLogV1Collector(null);
-    	b.getBusinessLogV1List();
+    	List<TBusinessLogV1> li = b.getBusinessLogV1List();
+    	System.out.println(li.toString());
     }*/
     
 }

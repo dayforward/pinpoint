@@ -21,6 +21,7 @@ public class BusinessLogServiceImpl implements BusinessLogService{
             sb.append(str);
             sb.append("\r\n");
         }
+        System.out.println(sb.toString());
         return sb.toString();
     }
 }

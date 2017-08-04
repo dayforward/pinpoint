@@ -157,6 +157,7 @@ public class BusinessLogCodecV1 implements BusinessLogCodec<BusinessLogV1Bo>{
         	businessLogV1Bo.setTransactionId(transactionIds.get(i));
         	businessLogV1Bo.setSpanId(spanIds.get(i));
         	businessLogV1Bo.setMessage(messages.get(i));
+        	businessLogV1Bos.add(businessLogV1Bo);
         }
         StringBuilder sb = new StringBuilder();
         List<String> logList = new ArrayList<String>();
@@ -172,6 +173,7 @@ public class BusinessLogCodecV1 implements BusinessLogCodec<BusinessLogV1Bo>{
         	sb.append(bussinessLogV1Bo.getTransactionId()).append(" ");
         	sb.append(bussinessLogV1Bo.getSpanId()).append(" ");
         	sb.append(bussinessLogV1Bo.getMessage()).append("");
+        	sb.append("\r\n");
         	logList.add(sb.toString());
         	
         	int  sb_length = sb.length();

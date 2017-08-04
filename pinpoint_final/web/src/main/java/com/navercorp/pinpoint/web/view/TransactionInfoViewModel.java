@@ -117,7 +117,7 @@ public class TransactionInfoViewModel {
             StringBuilder sb = new StringBuilder();
             //[XINGUANG]:add AgentId to distinguish different Agents' log
             sb.append("agentId=").append(getAgentId());
-            sb.append("transactionId=").append(getTransactionId());
+            sb.append("&transactionId=").append(getTransactionId());
             sb.append("&time=").append(recordSet.getStartTime());
             return logPageUrl + "?" + sb.toString();
         }

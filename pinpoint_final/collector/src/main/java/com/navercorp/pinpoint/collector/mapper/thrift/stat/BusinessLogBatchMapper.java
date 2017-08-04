@@ -30,10 +30,11 @@ public class BusinessLogBatchMapper implements ThriftBoMapper<BusinessLogBo, TBu
 		int size = TBusinessLogBatch.getBusinessLogsSize();
 
 		List<BusinessLogV1Bo> businessLogs = new ArrayList<BusinessLogV1Bo>(size);
-		BusinessLogV1Bo BusinessLogV1Bo = new BusinessLogV1Bo();
+
 		for(TBusinessLog tBusinessLog : TBusinessLogBatch.getBusinessLogs()) {			
 			long timestamp = tBusinessLog.getTimestamp();
 			for(TBusinessLogV1 tBusinessLogV1 : tBusinessLog.getBusinessLogV1s()) {
+				BusinessLogV1Bo BusinessLogV1Bo = new BusinessLogV1Bo();
 				BusinessLogV1Bo.setTime(tBusinessLogV1.getTime());
 				BusinessLogV1Bo.setThreadName(tBusinessLogV1.getThreadName());
 				BusinessLogV1Bo.setLogLevel(tBusinessLogV1.getLogLevel());

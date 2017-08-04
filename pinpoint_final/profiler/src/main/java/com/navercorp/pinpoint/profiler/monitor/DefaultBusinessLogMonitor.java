@@ -64,11 +64,11 @@ public class DefaultBusinessLogMonitor implements BusinessLogMonitor {
 
 	private void preLoadClass(String agentId, long agentStartTimestamp, BusinessLogMetaCollector<TBusinessLog> businessLogMetaCollector) {
 		logger.debug("pre-load class start");
-		CollectBusinessLog collectBusinessLog = new CollectBusinessLog(EmptyDataSender.INSTANCE, agentId, agentStartTimestamp, businessLogMetaCollector, 1);
+		//CollectBusinessLog collectBusinessLog = new CollectBusinessLog(EmptyDataSender.INSTANCE, agentId, agentStartTimestamp, businessLogMetaCollector, 1);
 
         // It is called twice to initialize some fields.
-		collectBusinessLog.run();
-		collectBusinessLog.run();
+		//collectBusinessLog.run();
+		//collectBusinessLog.run();
         logger.debug("pre-load class end");
 	}
 	

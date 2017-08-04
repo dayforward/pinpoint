@@ -3,6 +3,10 @@ package com.navercorp.pinpoint.web.dao.hbase.businesslog;
 
 import java.util.List;
 
+import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.server.bo.stat.BusinessLogType;
+import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +20,8 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.BusinessLogV1Decoder;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.web.dao.businesslog.BusinessLogV1Dao;
 import com.navercorp.pinpoint.web.mapper.BusinessLogMapper;
+
+import static com.navercorp.pinpoint.common.hbase.HBaseTables.AGENT_NAME_MAX_LEN;
 
 /**
  * Created by Administrator on 2017/6/14.
@@ -34,18 +40,33 @@ public class HbaseBusinessLogV1Dao implements BusinessLogV1Dao {
     @Autowired
     @Qualifier("businessLogMapper")
     private RowMapper<String> businessLogMapper;
+
+    @Autowired
+    @Qualifier("businessLogRowKeyDistributor")
+    private AbstractRowKeyDistributor rowKeyDistributor;
     
    /* @Autowired
     private BusinessLogMapper businessLogMapper;*/
     
     @Override
     public List<String> getBusinessLog(String agentId, String transactionId, String spanId, long time){
-        StringBuilder sb = new StringBuilder();
-        sb.append(agentId).append(AgentStatType.JVM_GC).append(transactionId);
+        /*StringBuilder sb = new StringBuilder();
+        sb.append(agentId).append(BusinessLogType.BUSINESS_LOG_V1).append(transactionId);
         if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
         }
-        byte[] rowKey = Bytes.toBytes(sb.toString());
+        byte[] rowKey = Bytes.toBytes(sb.toString());*/
+        byte[] bAgentId = BytesUtils.toBytes(agentId);
+        byte[] bStatType = new byte[]{BusinessLogType.BUSINESS_LOG_V1.getRawTypeCode()};
+
+        byte[] bTransactionId = BytesUtils.toBytes(transactionId);
+        byte[] rowKey = new byte[AGENT_NAME_MAX_LEN + bStatType.length + bTransactionId.length];
+        BytesUtils.writeBytes(rowKey, 0, bAgentId);
+        BytesUtils.writeBytes(rowKey, AGENT_NAME_MAX_LEN, bStatType);
+        BytesUtils.writeBytes(rowKey, AGENT_NAME_MAX_LEN + bStatType.length, bTransactionId);
+
+        //byte[] distributeRowKey = this.rowKeyDistributor.getDistributedKey(rowKey);
+
         Scan scan = new Scan();
         scan.setMaxVersions(1);
         scan.setCaching(SCANNER_CACHE_SIZE);

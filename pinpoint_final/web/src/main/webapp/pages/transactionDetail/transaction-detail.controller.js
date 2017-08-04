@@ -115,12 +115,12 @@
 				}
 	        }
 			$scope.viewLog = function( url ) {
-	        	if ( $scope.loggingTransactionInfo === false && $scope.logLinkEnable === false ) {
-	        		$("#customLogPopup").find("h4").html("Notice").end().find("div.modal-body").html( $scope.logDisableMessage ).end().modal("show");
-	        		return false;
-	        	} else {
-	        		window.open(encodeURI(url))
-	        	}
+	      //  	if ( $scope.loggingTransactionInfo === false ) {
+	       // 		$("#customLogPopup").find("h4").html("Notice").end().find("div.modal-body").html( $scope.logDisableMessage ).end().modal("show");
+	      //  		return false;
+	       // 	} else {
+	        		window.open(url);
+	      //  	}
 	        };
 	
 	        $scope.openInNewWindow = function () {

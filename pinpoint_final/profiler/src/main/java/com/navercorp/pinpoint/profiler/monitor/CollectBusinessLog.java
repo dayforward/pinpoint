@@ -45,13 +45,17 @@ public class CollectBusinessLog implements Runnable{
         try {
             final TBusinessLog businessLog = businessLogMetaCollector.collect();
             logger.info(businessLog.toString());
-            businessLog.setTimestamp(currentCollectionTimestamp);
-            businessLog.setCollectInterval(collectInterval);
-            this.businessLogs.add(businessLog);
-            if (++this.collectCount >= numCollectionsPerBatch) {
-                sendBusinessLogs();
-                this.collectCount = 0;
-            }
+            //if (businessLog.getBusinessLogV1s().size() != 0) {
+	            businessLog.setTimestamp(currentCollectionTimestamp);
+	            businessLog.setCollectInterval(collectInterval);
+	            this.businessLogs.add(businessLog);
+	            if (++this.collectCount >= numCollectionsPerBatch) {
+	                sendBusinessLogs();
+	                this.collectCount = 0;
+	            }
+           // } else {
+            	//logger.info("businessLog is null!");
+            //}
         } catch (Exception ex) {
             logger.warn("businessLog collect failed. Caused:{}", ex.getMessage(), ex);
         } finally {
