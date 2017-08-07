@@ -53,7 +53,7 @@ public class CollectBusinessLog implements Runnable{
 	                sendBusinessLogs();
 	                this.collectCount = 0;
 	            }
-           // } else {
+           //} else {
             	//logger.info("businessLog is null!");
             //}
         } catch (Exception ex) {

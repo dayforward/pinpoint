@@ -244,13 +244,17 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
         		firstLineInOneMessage = false;
         	} else {        	
 	            try {
-	                if ((lineTxt = reader.readLine()) == null) {
+	                if ((lineTxt = reader.readLine()) == null ) {
 	                    //return new Pair<Long, TBusinessLogV1>(line, null);
 	                	lastLine = true;
 	                	break;
 	                }
+                    nextLine++;
+	                if("".equals(lineTxt)){
+	                    continue;
+                    }
 	                String[] lineTxts = lineTxt.split(" ");
-	                nextLine++;
+
 	                String time  = lineTxts[0] + " " + lineTxts[1];
 	                lineTxts[0] = time;
 	                if (firstLineInOneMessage) {                 	
@@ -274,8 +278,10 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
         	}
             
         }
-
-        TBusinessLogV1 tBusinessLogV1 = generateTBusinessLogV1FromStringList(linesOfTxts);
+        TBusinessLogV1 tBusinessLogV1 = new TBusinessLogV1();
+        if (linesOfTxts.size() != 0) {
+            tBusinessLogV1 = generateTBusinessLogV1FromStringList(linesOfTxts);
+        }
         if (tBusinessLogV1 == null)
             return new Pair<Long, TBusinessLogV1>(line, null);
         return new Pair<Long, TBusinessLogV1>(nextLine, tBusinessLogV1);
@@ -328,6 +334,7 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
         //[XINGUANG] get line number
         Pair<Date, Long> dateLinePair = dailyLogLineMap.get(businessLogV1);
         Long line = dateLinePair.getValue();
+        Date date = dateLinePair.getKey();
         
         //[XINGUANG] skip prelines
         boolean flag = skipPreLines(reader, businessLogV1, line);
@@ -335,17 +342,21 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
             return new Pair<Long, TBusinessLogV1>(line, null);
         }*/        
         for (int i = 0; i < linePerLogPerBatch; i++) {
-        	if(lastLine) {
+        	/*if(lastLine) {
         		break;
-        	}
+        	}*/
             Pair<Long, TBusinessLogV1> tBusinessLogV1LinePair = readOneLogFromLine(reader, businessLogV1, line);
             if (tBusinessLogV1LinePair.getKey() != line) {
                 line = tBusinessLogV1LinePair.getKey();
                 tBusinessLogV1List.add(tBusinessLogV1LinePair.getValue());
             } else {
+                //不加最后一行可能会没有，加了信息不完整
+                line = tBusinessLogV1LinePair.getKey() + 1;
                 break;
             }
+
         }
+        dailyLogLineMap.put(businessLogV1, new Pair<Date, Long>(date, (line -1) ));
         return tBusinessLogV1List;
     }
 
@@ -408,7 +419,7 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
         return readLogFromBusinessLogList();
     }
     
-   /* public static void main(String[] args) {
+    /*public static void main(String[] args) {
     	BusinessLogV1Collector b = new BusinessLogV1Collector(null);
     	List<TBusinessLogV1> li = b.getBusinessLogV1List();
     	System.out.println(li.toString());
