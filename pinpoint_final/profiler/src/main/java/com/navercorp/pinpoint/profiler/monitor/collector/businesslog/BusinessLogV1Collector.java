@@ -233,6 +233,7 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
     }
 
     private Pair<Long, TBusinessLogV1> readOneLogFromLineInner(BufferedReader reader, String businessLogV1, Long line) {
+        boolean assemblyData = false;
         Long nextLine = line;
         String lineTxt;
         boolean firstLineInOneMessage = true;
@@ -266,6 +267,11 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
 	                } else {
 	                    if (checkTimePatternMeet(time)) {
 	                    	nextLineContext = lineTxts;
+	                    	Long markLine = nextLine;
+	                    	Date date = dailyLogLineMap.get(businessLogV1).getKey();
+                            dailyLogLineMap.put(businessLogV1, new Pair<Date, Long>(date, (markLine - 1)));
+
+                            assemblyData = true;
 	                    	break;
 	                    }
 	                        
@@ -279,7 +285,7 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
             
         }
         TBusinessLogV1 tBusinessLogV1 = new TBusinessLogV1();
-        if (linesOfTxts.size() != 0) {
+        if (linesOfTxts.size() != 0 && assemblyData == true) {
             tBusinessLogV1 = generateTBusinessLogV1FromStringList(linesOfTxts);
         }
         if (tBusinessLogV1 == null)
@@ -350,13 +356,10 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
                 line = tBusinessLogV1LinePair.getKey();
                 tBusinessLogV1List.add(tBusinessLogV1LinePair.getValue());
             } else {
-                //不加最后一行可能会没有，加了信息不完整
-                line = tBusinessLogV1LinePair.getKey() + 1;
                 break;
             }
 
         }
-        dailyLogLineMap.put(businessLogV1, new Pair<Date, Long>(date, (line -1) ));
         return tBusinessLogV1List;
     }
 
