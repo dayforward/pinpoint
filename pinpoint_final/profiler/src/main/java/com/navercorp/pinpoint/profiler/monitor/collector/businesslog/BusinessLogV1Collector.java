@@ -35,7 +35,7 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
 
     private ProfilerConfig profilerConfig;
     private long nextLine;
-    static final Pattern BUSINESS_LOG_PATTERN = compile("^BUSINESS_LOG_[A-Za-z]*.log$");
+    static final Pattern BUSINESS_LOG_PATTERN = compile("^BUSINESS_LOG_[A-Za-z0-9]*.log$");
     //static final String TIME_FIELD_PATTEN = "^[[1-9]\\\\d{3}\\\\-(0?[1-9]|1[0-2])\\\\-(0?[1-9]|[12]\\\\d|3[01])\\\\s*(0?[1-9]|1\\\\d|2[0-3])(\\\\:(0?[1-9]|[1-5]\\\\d)){2}]$";
     static final String TIME_FIELD_PATTEN = "^\\[([0-9]{3}[1-9]|[0-9]{2}[1-9][0-9]{1}|[0-9]{1}[1-9][0-9]{2}|[1-9][0-9]{3})-(((0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01]))|((0[469]|11)-(0[1-9]|[12][0-9]|30))|(02-(0[1-9]|[1][0-9]|2[0-8]))) ([0-1]?[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])\\]$";
     static final String THREAD_FIELD_PATTEN = "^[*]$";
@@ -404,7 +404,7 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
         }
     }
     
-    private void generateBusinessLogList(File[] files, String tomcatLogDir) {
+    private void generateBusinessLogList(File[] files) {
     	for (File file : files) {
     		businessLogList.add(file.toString());
     	}
@@ -413,10 +413,13 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
     private List<TBusinessLogV1> getBusinessLogV1List() {
         //[XINGUANG] retrives logs from tomcat log dir
     	//String tomcatLogDir = "D:/logs";
-        String tomcatLogDir = profilerConfig.getTomcatLogDir();
+        String tomcatLogDirs = profilerConfig.getTomcatLogDir();
         businessLogList.clear();
-        File[] files = listFiles(BUSINESS_LOG_PATTERN, tomcatLogDir);
-        generateBusinessLogList(files, tomcatLogDir);
+        String[] tomcatLogDirList = tomcatLogDirs.split(";");
+        for (String tomcatLogDir : tomcatLogDirList) {
+            File[] files = listFiles(BUSINESS_LOG_PATTERN, tomcatLogDir.trim());
+            generateBusinessLogList(files);
+        }
         generateLogLineMap();
         //[XINGUANG] read BusinessLogList
         return readLogFromBusinessLogList();
