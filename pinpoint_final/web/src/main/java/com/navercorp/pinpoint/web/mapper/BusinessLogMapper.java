@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.BusinessLogDataPoint;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.BusinessLogV1Decoder;
 
 /**
- * Created by Administrator on 2017/6/14.
+ * [XINGUANG]Created by Administrator on 2017/6/14.
  */
 @Component
 public class BusinessLogMapper implements RowMapper<String> {
@@ -39,7 +39,6 @@ public class BusinessLogMapper implements RowMapper<String> {
         }
         List<String> strList = new ArrayList<String>();
         StringBuilder str = new StringBuilder();
-        //final byte[] distributedRowKey = result.getRow();
         final byte[] rowKey = result.getRow();
         final String agentId = this.hbaseOperationFactory.getAgentId(rowKey);
         final Cell[] rawCells = result.rawCells();

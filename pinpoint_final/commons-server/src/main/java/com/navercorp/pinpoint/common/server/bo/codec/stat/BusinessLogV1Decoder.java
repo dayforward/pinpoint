@@ -7,6 +7,9 @@ import org.springframework.stereotype.Component;
 
 import com.navercorp.pinpoint.common.server.bo.stat.BusinessLogV1Bo;
 
+/**
+ * [XINGUANG]
+ */
 @Component
 public class BusinessLogV1Decoder extends BusinessLogDecoder<BusinessLogV1Bo>{
 

@@ -1,13 +1,14 @@
 package com.navercorp.pinpoint.web.service;
 
-/**
- * Created by Administrator on 2017/6/12.
- */
+
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.navercorp.pinpoint.web.dao.businesslog.BusinessLogDao;
 
+/**
+ * [XINGUANG]Created by Administrator on 2017/6/12.
+ */
 @Service
 public class BusinessLogServiceImpl implements BusinessLogService{
     @Autowired

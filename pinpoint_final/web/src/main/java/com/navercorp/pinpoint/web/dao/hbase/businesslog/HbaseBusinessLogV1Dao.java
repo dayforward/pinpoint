@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.web.mapper.BusinessLogMapper;
 import static com.navercorp.pinpoint.common.hbase.HBaseTables.AGENT_NAME_MAX_LEN;
 
 /**
- * Created by Administrator on 2017/6/14.
+ * [XINGUANG]Created by Administrator on 2017/6/14.
  */
 @Repository
 public class HbaseBusinessLogV1Dao implements BusinessLogV1Dao {
@@ -45,17 +45,8 @@ public class HbaseBusinessLogV1Dao implements BusinessLogV1Dao {
     @Qualifier("businessLogRowKeyDistributor")
     private AbstractRowKeyDistributor rowKeyDistributor;
     
-   /* @Autowired
-    private BusinessLogMapper businessLogMapper;*/
-    
     @Override
     public List<String> getBusinessLog(String agentId, String transactionId, String spanId, long time){
-        /*StringBuilder sb = new StringBuilder();
-        sb.append(agentId).append(BusinessLogType.BUSINESS_LOG_V1).append(transactionId);
-        if (transactionId == null) {
-            throw new NullPointerException("transactionId must not be null");
-        }
-        byte[] rowKey = Bytes.toBytes(sb.toString());*/
         byte[] bAgentId = BytesUtils.toBytes(agentId);
         byte[] bStatType = new byte[]{BusinessLogType.BUSINESS_LOG_V1.getRawTypeCode()};
 
@@ -64,8 +55,6 @@ public class HbaseBusinessLogV1Dao implements BusinessLogV1Dao {
         BytesUtils.writeBytes(rowKey, 0, bAgentId);
         BytesUtils.writeBytes(rowKey, AGENT_NAME_MAX_LEN, bStatType);
         BytesUtils.writeBytes(rowKey, AGENT_NAME_MAX_LEN + bStatType.length, bTransactionId);
-
-        //byte[] distributeRowKey = this.rowKeyDistributor.getDistributedKey(rowKey);
 
         Scan scan = new Scan();
         scan.setMaxVersions(1);

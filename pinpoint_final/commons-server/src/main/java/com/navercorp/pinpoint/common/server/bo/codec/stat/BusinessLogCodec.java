@@ -6,6 +6,9 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.BusinessLogDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.BusinessLogDataPoint;
 
+/**
+ * [XINGUANG]
+ */
 public interface BusinessLogCodec<T extends BusinessLogDataPoint> {
 
 	byte getVersion();

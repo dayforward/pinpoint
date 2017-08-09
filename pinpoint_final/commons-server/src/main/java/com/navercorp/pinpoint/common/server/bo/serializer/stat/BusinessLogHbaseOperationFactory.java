@@ -19,6 +19,9 @@ import com.navercorp.pinpoint.common.server.bo.stat.BusinessLogDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.BusinessLogType;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 
+/**
+ * [XINGUANG]
+ */
 @Component
 public class BusinessLogHbaseOperationFactory {
 	
@@ -77,17 +80,14 @@ public class BusinessLogHbaseOperationFactory {
 	    }
 	    
 	    public String getAgentId(byte[] RowKey) {
-	        //byte[] originalRowKey = this.rowKeyDistributor.getOriginalKey(distributedRowKey);
 	        return this.rowKeyDecoder.decodeRowKey(RowKey).getAgentId();
 	    }
 	    
 	    public BusinessLogType getAgentStatType(byte[] RowKey) {
-	        //byte[] originalRowKey = this.rowKeyDistributor.getOriginalKey(distributedRowKey);
 	        return this.rowKeyDecoder.decodeRowKey(RowKey).getBusinessLogType();
 	    }
 	    
 	    public String getTransactionIdANDSpanId(byte[] RowKey){
-	        //byte[] originalRowKey = this.rowKeyDistributor.getOriginalKey(distributedRowKey);
 	        return this.rowKeyDecoder.decodeRowKey(RowKey).getTransactionIdANDSpanId();
 	    }
 }

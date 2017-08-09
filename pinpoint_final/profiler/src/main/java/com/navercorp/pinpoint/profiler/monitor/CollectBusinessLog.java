@@ -13,6 +13,9 @@ import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
 import com.navercorp.pinpoint.thrift.dto.TBusinessLog;
 import com.navercorp.pinpoint.thrift.dto.TBusinessLogBatch;
 
+/**
+ * [XINGUANG]
+ */
 public class CollectBusinessLog implements Runnable{
 
 	private final Logger logger = LoggerFactory.getLogger(CollectBusinessLog.class);
@@ -39,23 +42,18 @@ public class CollectBusinessLog implements Runnable{
 	
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
         final long currentCollectionTimestamp = System.currentTimeMillis();
         final long collectInterval = currentCollectionTimestamp - this.prevCollectionTimestamp;
         try {
             final TBusinessLog businessLog = businessLogMetaCollector.collect();
             logger.info(businessLog.toString());
-            //if (businessLog.getBusinessLogV1s().size() != 0) {
-	            businessLog.setTimestamp(currentCollectionTimestamp);
-	            businessLog.setCollectInterval(collectInterval);
-	            this.businessLogs.add(businessLog);
-	            if (++this.collectCount >= numCollectionsPerBatch) {
-	                sendBusinessLogs();
-	                this.collectCount = 0;
-	            }
-           //} else {
-            	//logger.info("businessLog is null!");
-            //}
+            businessLog.setTimestamp(currentCollectionTimestamp);
+            businessLog.setCollectInterval(collectInterval);
+            this.businessLogs.add(businessLog);
+            if (++this.collectCount >= numCollectionsPerBatch) {
+                sendBusinessLogs();
+                this.collectCount = 0;
+            }
         } catch (Exception ex) {
             logger.warn("businessLog collect failed. Caused:{}", ex.getMessage(), ex);
         } finally {

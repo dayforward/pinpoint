@@ -12,12 +12,14 @@ import com.navercorp.pinpoint.thrift.dto.TBusinessLog;
 import com.navercorp.pinpoint.thrift.dto.TBusinessLogBatch;
 import com.navercorp.pinpoint.thrift.dto.TBusinessLogV1;
 
+/**
+ * [XINGUANG]
+ */
 @Component
 public class BusinessLogBatchMapper implements ThriftBoMapper<BusinessLogBo, TBusinessLogBatch>{
 
 	@Override
 	public BusinessLogBo map(TBusinessLogBatch TBusinessLogBatch) {
-		// TODO Auto-generated method stub
 		if (!TBusinessLogBatch.isSetBusinessLogs()) {
 			return null;
 		}

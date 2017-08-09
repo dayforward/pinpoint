@@ -1,5 +1,8 @@
 package com.navercorp.pinpoint.common.server.bo.stat;
 
+/**
+ * [XINGUANG]
+ */
 public class BusinessLogV1Bo implements BusinessLogDataPoint{
 	
 	private String agentId;
@@ -115,7 +118,6 @@ public class BusinessLogV1Bo implements BusinessLogDataPoint{
 
 	@Override
 	public BusinessLogType geTBusinessLogType() {
-		// TODO Auto-generated method stub
 		return BusinessLogType.BUSINESS_LOG_V1;
 	}
 

@@ -14,6 +14,9 @@ import com.navercorp.pinpoint.common.server.bo.stat.BusinessLogBo;
 import com.navercorp.pinpoint.common.server.bo.stat.BusinessLogV1Bo;
 import com.navercorp.pinpoint.thrift.dto.TBusinessLogBatch;
 
+/**
+ * [XINGUANG]
+ */
 @Service("businessLogHandler")
 public class BusinessLogHandler implements Handler{
 	
@@ -21,16 +24,12 @@ public class BusinessLogHandler implements Handler{
 	
 	@Autowired
     private BusinessLogBatchMapper businessLogBatchMapper;
-	
-	/*@Autowired
-    private BusinessLogService businessLogService;*/
-	
+
 	@Autowired
 	private BusinessLogDao<BusinessLogV1Bo> businessLogDao;
 
 	@Override
 	public void handle(TBase<?, ?> tbase) {
-		// TODO Auto-generated method stub
 		if(tbase instanceof TBusinessLogBatch) {
 			TBusinessLogBatch tBusinessLogBatch = (TBusinessLogBatch) tbase;
         	this.handleBusinessLogBatch(tBusinessLogBatch);
@@ -49,7 +48,6 @@ public class BusinessLogHandler implements Handler{
     	if(businessLogBo == null) {
     		return;
     	}
-   // 	businessLogService.save(businessLogBo);
     	businessLogDao.insert(businessLogBo.getAgentId(), businessLogBo.getBusinessLogs());
     }
 

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.navercorp.pinpoint.web.service.BusinessLogService;
 /**
- * Created by Administrator on 2017/6/12.
+ * [XINGUANG]Created by Administrator on 2017/6/12.
  */
 @Controller
 public class BusinessLogController {

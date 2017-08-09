@@ -7,6 +7,9 @@ import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.stat.BusinessLogDataPoint;
 
+/**
+ * [XINGUANG]
+ */
 public class BusinessLogEncoder<T extends BusinessLogDataPoint> {
 
 	private final BusinessLogCodec<T> codec;

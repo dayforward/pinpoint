@@ -15,6 +15,9 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.BusinessLogV1Seri
 import com.navercorp.pinpoint.common.server.bo.stat.BusinessLogV1Bo;
 import com.navercorp.pinpoint.common.server.bo.stat.BusinessLogType;
 
+/**
+ * [XINGUANG]
+ */
 @Repository
 public class HbaseBusinessLogV1Dao implements BusinessLogDao<BusinessLogV1Bo>{
 	
@@ -29,14 +32,12 @@ public class HbaseBusinessLogV1Dao implements BusinessLogDao<BusinessLogV1Bo>{
 
     @Override
 	public void insert(String agentId, List<BusinessLogV1Bo> businessLogV1Bo) {
-		// TODO Auto-generated method stub
 		if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
 		if (businessLogV1Bo == null) {
 			return;
 		}
-
 				
 		List<Put> businessLogPut = businessLogHbaseOperationFactory.createPuts(agentId, BusinessLogType.BUSINESS_LOG_V1, businessLogV1Bo, this.businessLogV1Serializer);
 		if (!businessLogPut.isEmpty()) {
@@ -46,5 +47,4 @@ public class HbaseBusinessLogV1Dao implements BusinessLogDao<BusinessLogV1Bo>{
             }
         }
 	}
-
 }

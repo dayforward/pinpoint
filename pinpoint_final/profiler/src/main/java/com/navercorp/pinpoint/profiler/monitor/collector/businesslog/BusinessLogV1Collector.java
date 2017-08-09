@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.thrift.dto.TBusinessLogV1;
 
 
 /**
- * Created by Administrator on 2017/7/21.
+ * [XINGUANG]Created by Administrator on 2017/7/21.
  */
 public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusinessLogV1> {
 
@@ -62,14 +62,6 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
 
     @Override
     public List<TBusinessLogV1> collect() {
-    	/*TBusinessLogV1 tBusinessLogV1 = new TBusinessLogV1();
-    	tBusinessLogV1.setMessage("this is a test message");
-    	tBusinessLogV1.setSpanId("testSpanId");
-    	tBusinessLogV1.setTransactionId("testTransactionId");
-    	List<TBusinessLogV1> tBusinessLogV1s = new ArrayList<TBusinessLogV1>();
-    	tBusinessLogV1s.add(tBusinessLogV1);
-    	return tBusinessLogV1s;*/
-        
         return getBusinessLogV1List();
     }
 
@@ -81,7 +73,6 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
                 Matcher matcher = pattern.matcher(fileName);
                 if (matcher.matches()) {
                 	System.out.println(fileName);
-                    //businessLogList.add(fileName);
                     return true;
                 }
                 return false;
@@ -218,7 +209,6 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
         tBusinessLogV1.setThreadName(fieldList.get(1));
         tBusinessLogV1.setLogLevel(fieldList.get(2));
         tBusinessLogV1.setClassName(fieldList.get(3));
-        //Pair<String, String> txSpanPair = retriveTractionIdFromField(fieldList.get(4));
         tBusinessLogV1.setTransactionId(fieldList.get(4));
         tBusinessLogV1.setSpanId(fieldList.get(5).split("]")[0]);
         tBusinessLogV1.setMessage(retriveMessageFormField(fieldList, 6));
@@ -246,7 +236,6 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
         	} else {        	
 	            try {
 	                if ((lineTxt = reader.readLine()) == null ) {
-	                    //return new Pair<Long, TBusinessLogV1>(line, null);
 	                	lastLine = true;
 	                	break;
 	                }
@@ -344,13 +333,7 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
         
         //[XINGUANG] skip prelines
         boolean flag = skipPreLines(reader, businessLogV1, line);
-        /*if (!flag) {
-            return new Pair<Long, TBusinessLogV1>(line, null);
-        }*/        
         for (int i = 0; i < linePerLogPerBatch; i++) {
-        	/*if(lastLine) {
-        		break;
-        	}*/
             Pair<Long, TBusinessLogV1> tBusinessLogV1LinePair = readOneLogFromLine(reader, businessLogV1, line);
             if (tBusinessLogV1LinePair.getKey() != line) {
                 line = tBusinessLogV1LinePair.getKey();
@@ -358,18 +341,19 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
             } else {
                 break;
             }
-
         }
         return tBusinessLogV1List;
     }
 
     private List<TBusinessLogV1> readLogFromBusinessLogList() {
         List<TBusinessLogV1> tBusinessLogV1List = new ArrayList<TBusinessLogV1>();
-        for (String businessLogV1 : businessLogList) {
-            if (dailyLogLineMap.containsKey(businessLogV1)) {
-                List<TBusinessLogV1> tBusinessLogV1ListSub = readLogFromBusinessLog(businessLogV1);
-                //[XINGUANG] gurantee the order by first added list ,second added list ... when resolve data from tBusinessLogV1List?
-                tBusinessLogV1List.addAll(tBusinessLogV1ListSub);
+        if (!businessLogList.isEmpty()) {
+            for (String businessLogV1 : businessLogList) {
+                if (dailyLogLineMap.containsKey(businessLogV1)) {
+                    List<TBusinessLogV1> tBusinessLogV1ListSub = readLogFromBusinessLog(businessLogV1);
+                    //[XINGUANG] gurantee the order by first added list ,second added list ... when resolve data from tBusinessLogV1List?
+                    tBusinessLogV1List.addAll(tBusinessLogV1ListSub);
+                }
             }
         }
         return tBusinessLogV1List;
@@ -405,14 +389,14 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
     }
     
     private void generateBusinessLogList(File[] files) {
-    	for (File file : files) {
-    		businessLogList.add(file.toString());
-    	}
+        if (files != null) {
+            for (File file : files) {
+                businessLogList.add(file.toString());
+            }
+        }
     }
 
     private List<TBusinessLogV1> getBusinessLogV1List() {
-        //[XINGUANG] retrives logs from tomcat log dir
-    	//String tomcatLogDir = "D:/logs";
         String tomcatLogDirs = profilerConfig.getTomcatLogDir();
         businessLogList.clear();
         String[] tomcatLogDirList = tomcatLogDirs.split(";");
@@ -424,11 +408,4 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
         //[XINGUANG] read BusinessLogList
         return readLogFromBusinessLogList();
     }
-    
-    /*public static void main(String[] args) {
-    	BusinessLogV1Collector b = new BusinessLogV1Collector(null);
-    	List<TBusinessLogV1> li = b.getBusinessLogV1List();
-    	System.out.println(li.toString());
-    }*/
-    
 }

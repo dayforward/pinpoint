@@ -19,7 +19,9 @@ import com.navercorp.pinpoint.profiler.sender.EmptyDataSender;
 import com.navercorp.pinpoint.thrift.dto.TBusinessLog;
 
 
-
+/**
+ * [XINGUANG]
+ */
 public class DefaultBusinessLogMonitor implements BusinessLogMonitor {
 	
 	public static final long DEFAULT_COLLECTION_INTERVAL_MS = 1000 * 5;	
@@ -32,10 +34,6 @@ public class DefaultBusinessLogMonitor implements BusinessLogMonitor {
 	private final ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(1, new PinpointThreadFactory("Pinpoint-BusinessLogInfo-monitor", true));
 
 	private CollectBusinessLog collectBusinessLog;
-	
-	//private BusinessLogInfo businessLogInfo;
-
-
 
 	@Inject
     public DefaultBusinessLogMonitor(@StatDataSender DataSender dataSender,
@@ -63,13 +61,8 @@ public class DefaultBusinessLogMonitor implements BusinessLogMonitor {
 	}
 
 	private void preLoadClass(String agentId, long agentStartTimestamp, BusinessLogMetaCollector<TBusinessLog> businessLogMetaCollector) {
-		logger.debug("pre-load class start");
-		//CollectBusinessLog collectBusinessLog = new CollectBusinessLog(EmptyDataSender.INSTANCE, agentId, agentStartTimestamp, businessLogMetaCollector, 1);
-
-        // It is called twice to initialize some fields.
-		//collectBusinessLog.run();
-		//collectBusinessLog.run();
-        logger.debug("pre-load class end");
+		//logger.debug("pre-load class start");
+        //logger.debug("pre-load class end");
 	}
 	
 	@Override

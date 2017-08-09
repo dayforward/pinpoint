@@ -1,5 +1,8 @@
 package com.navercorp.pinpoint.common.server.bo.stat;
 
+/**
+ * [XINGUANG]
+ */
 public enum BusinessLogType {
 	UNKNOWN(0, "Unknown"),
 	BUSINESS_LOG_V1((byte) 1, "business_log_v1");

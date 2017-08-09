@@ -8,6 +8,9 @@ import com.navercorp.pinpoint.common.util.BytesUtils;
 
 import static com.navercorp.pinpoint.common.hbase.HBaseTables.AGENT_NAME_MAX_LEN;
 
+/**
+ * [XINGUANG]
+ */
 @Component
 public class BusinessLogRowKeyEncoder implements RowKeyEncoder<BusinessLogRowKeyComponent>{
 

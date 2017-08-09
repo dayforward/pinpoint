@@ -1,5 +1,8 @@
 package com.navercorp.pinpoint.common.server.bo.stat;
 
+/**
+ * [XINGUANG]
+ */
 public interface BusinessLogDataPoint {
 	String getAgentId();
     void setAgentId(String agentId);

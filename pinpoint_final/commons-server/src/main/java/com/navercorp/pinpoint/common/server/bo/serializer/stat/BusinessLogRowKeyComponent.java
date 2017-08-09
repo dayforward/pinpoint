@@ -2,6 +2,9 @@ package com.navercorp.pinpoint.common.server.bo.serializer.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.BusinessLogType;
 
+/**
+ * [XINGUANG]
+ */
 public class BusinessLogRowKeyComponent {
 	
     private final String agentId;

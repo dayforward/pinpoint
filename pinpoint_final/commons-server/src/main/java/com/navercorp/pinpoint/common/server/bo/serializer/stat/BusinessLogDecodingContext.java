@@ -1,5 +1,8 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.stat;
 
+/**
+ * [XINGUANG]
+ */
 public class BusinessLogDecodingContext {
 	
  	private String agentId;

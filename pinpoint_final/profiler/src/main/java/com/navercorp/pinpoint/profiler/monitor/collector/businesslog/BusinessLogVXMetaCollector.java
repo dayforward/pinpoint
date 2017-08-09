@@ -6,7 +6,7 @@ import org.apache.thrift.TBase;
 import org.apache.thrift.TFieldIdEnum;
 
 /**
- * Created by Administrator on 2017/7/21.
+ * [XINGUANG]Created by Administrator on 2017/7/21.
  */
 public interface BusinessLogVXMetaCollector <T extends TBase<T, ? extends TFieldIdEnum>> {
     List<T> collect();

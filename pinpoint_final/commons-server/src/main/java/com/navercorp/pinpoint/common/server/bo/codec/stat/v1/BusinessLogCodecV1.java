@@ -22,6 +22,9 @@ import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.BusinessLogDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.BusinessLogV1Bo;
 
+/**
+ * [XINGUANG]
+ */
 @Component("businessLogCodecV1")
 public class BusinessLogCodecV1 implements BusinessLogCodec<BusinessLogV1Bo>{
 	
@@ -37,13 +40,11 @@ public class BusinessLogCodecV1 implements BusinessLogCodec<BusinessLogV1Bo>{
 
 	@Override
 	public byte getVersion() {
-		// TODO Auto-generated method stub
 		return VERSION;
 	}
 
 	@Override
 	public void encodeValues(Buffer valueBuffer, List<BusinessLogV1Bo> businessLogV1Bos) {
-		// TODO Auto-generated method stub
 		if (CollectionUtils.isEmpty(businessLogV1Bos)) {
             throw new IllegalArgumentException("businessLogV1Bos must not be empty");
         }
@@ -118,7 +119,6 @@ public class BusinessLogCodecV1 implements BusinessLogCodec<BusinessLogV1Bo>{
 
 	@Override
 	public List<String> decodeValues(Buffer valueBuffer, BusinessLogDecodingContext decodingContext) {
-		// TODO Auto-generated method stub
 		final String agentId = decodingContext.getAgentId();
 
         int numValues = valueBuffer.readVInt();
