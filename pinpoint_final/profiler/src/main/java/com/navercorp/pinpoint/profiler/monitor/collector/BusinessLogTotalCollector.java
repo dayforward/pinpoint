@@ -16,12 +16,14 @@ import com.navercorp.pinpoint.thrift.dto.TBusinessLogV1;
 public class BusinessLogTotalCollector implements BusinessLogMetaCollector<TBusinessLog>{
 	
 	private final Logger logger = LoggerFactory.getLogger(BusinessLogTotalCollector.class);
-	
-	@Inject
+
 	private  BusinessLogVXMetaCollector businessLogVXMetaCollector;
 
 	@Inject
-	public BusinessLogTotalCollector() {}
+	public BusinessLogTotalCollector(BusinessLogVXMetaCollector businessLogVXMetaCollector) {
+		this.businessLogVXMetaCollector = businessLogVXMetaCollector;
+		initDailyLogLineMap();
+	}
 
 	@Override
 	public  TBusinessLog collect() {
@@ -29,6 +31,16 @@ public class BusinessLogTotalCollector implements BusinessLogMetaCollector<TBusi
 		TBusinessLog tBusinessLog = new TBusinessLog();
 		tBusinessLog.setBusinessLogV1s(businessLogVXMetaCollector.collect());
 		return tBusinessLog;	
+	}
+
+	@Override
+	public void saveLogMark() {
+		businessLogVXMetaCollector.saveLogMark();
+	}
+
+
+	private void initDailyLogLineMap() {
+		businessLogVXMetaCollector.initDailyLogLineMap();
 	}
 
 }

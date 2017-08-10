@@ -133,4 +133,6 @@ public interface ProfilerConfig {
     //[XINGUANG]:get dir of log of tomcat
     String getTomcatLogDir();
 
+    boolean getBusinessLogEnable();
+
 }

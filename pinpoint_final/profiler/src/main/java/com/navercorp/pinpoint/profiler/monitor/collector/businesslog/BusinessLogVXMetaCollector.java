@@ -9,5 +9,10 @@ import org.apache.thrift.TFieldIdEnum;
  * [XINGUANG]Created by Administrator on 2017/7/21.
  */
 public interface BusinessLogVXMetaCollector <T extends TBase<T, ? extends TFieldIdEnum>> {
+
     List<T> collect();
+
+    void initDailyLogLineMap();
+
+    void saveLogMark();
 }

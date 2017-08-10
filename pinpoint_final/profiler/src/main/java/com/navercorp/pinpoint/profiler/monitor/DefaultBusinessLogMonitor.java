@@ -56,8 +56,6 @@ public class DefaultBusinessLogMonitor implements BusinessLogMonitor {
 
 	        this.collectionIntervalMs = collectionInterval;
 	        this.collectBusinessLog = new CollectBusinessLog(dataSender, agentId, agentStartTimestamp, businessLogMetaCollector, numCollectionsPerBatch);
-	        
-	        preLoadClass(agentId, agentStartTimestamp, businessLogMetaCollector);
 	}
 
 	private void preLoadClass(String agentId, long agentStartTimestamp, BusinessLogMetaCollector<TBusinessLog> businessLogMetaCollector) {

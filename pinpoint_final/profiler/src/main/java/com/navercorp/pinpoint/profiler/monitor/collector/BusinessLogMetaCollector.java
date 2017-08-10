@@ -10,4 +10,6 @@ import java.util.List;
  */
 public interface BusinessLogMetaCollector <T extends TBase<T, ? extends TFieldIdEnum>>  {
     T collect();
+
+    void saveLogMark();
 }

@@ -52,6 +52,7 @@ public class CollectBusinessLog implements Runnable{
             this.businessLogs.add(businessLog);
             if (++this.collectCount >= numCollectionsPerBatch) {
                 sendBusinessLogs();
+                businessLogMetaCollector.saveLogMark();
                 this.collectCount = 0;
             }
         } catch (Exception ex) {

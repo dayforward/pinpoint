@@ -2,36 +2,34 @@ package com.navercorp.pinpoint.profiler.monitor.collector.businesslog;
 
 import static java.util.regex.Pattern.compile;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
 
 import com.google.inject.Inject;
+import com.navercorp.pinpoint.bootstrap.AgentDirBaseClassPathResolver;
+import com.navercorp.pinpoint.bootstrap.BootstrapJarFile;
+import com.navercorp.pinpoint.bootstrap.ClassPathResolver;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.util.Pair;
+import com.navercorp.pinpoint.profiler.context.module.AgentId;
+import com.navercorp.pinpoint.profiler.context.module.BootstrapJarPaths;
 import com.navercorp.pinpoint.thrift.dto.TBusinessLogV1;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * [XINGUANG]Created by Administrator on 2017/7/21.
  */
 public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusinessLogV1> {
+
+    private final Logger logger = LoggerFactory.getLogger(BusinessLogV1Collector.class);
 
     private ProfilerConfig profilerConfig;
     private long nextLine;
@@ -47,6 +45,8 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
     private final static int linePerLogPerBatch = 1000;
     String[] nextLineContext = null;
     boolean lastLine = false;
+    String agentId;
+    String jarPath;
     private HashMap<String, Pair<Date, Long>> dailyLogLineMap = new HashMap<String, Pair<Date, Long>>();
 
     private enum EnumField {
@@ -54,15 +54,111 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
     }
 
     @Inject
-    public BusinessLogV1Collector(ProfilerConfig profilerConfig) {
+    public BusinessLogV1Collector(ProfilerConfig profilerConfig, @AgentId String agentId) {
         this.profilerConfig = profilerConfig;
         this.nextLine = 0;
         businessLogList = new ArrayList<String>();
+        this.agentId = agentId;
     }
 
     @Override
     public List<TBusinessLogV1> collect() {
         return getBusinessLogV1List();
+    }
+
+    @Override
+    public void initDailyLogLineMap() {
+        System.out.println("Init the dailyLogLineMap");
+        //读文件，并初始化dailyLogLineMap
+        String agentPath = getAgentPath();
+        String filePath = agentPath  + File.separator +  agentId + ".txt";
+        File file = new File(filePath);
+        if (file.exists()) {
+            String encoding = "UTF-8";
+            try {
+                InputStreamReader isReader = new InputStreamReader(new FileInputStream(filePath), encoding);
+                BufferedReader reader = new BufferedReader(isReader);
+                try {
+                    String lineTxt = reader.readLine();
+                    while (lineTxt != null) {
+                        String[] mapStr = lineTxt.split(",");
+                        SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd");
+                        Date date = null;
+                        try {
+                            date = sdf.parse(mapStr[1]);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        Long line = Long.parseLong(mapStr[2]);
+                        dailyLogLineMap.put(mapStr[0], new Pair<Date, Long>(date, line));
+                        lineTxt = reader.readLine();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void saveLogMark() {
+        System.out.println("save log mark");
+        //首先取到agent包的位置
+        String agentPath = getAgentPath();
+        String filePath = agentPath   + File.separator +  agentId + ".txt";
+      //  String filePath = "D:\\pinpoint-agent-1.6.2\\PinPointAgentID.txt";
+        File file = new File(filePath);
+        //写入内容
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
+        }
+        FileWriter fileWriter=null;
+        try {
+            fileWriter = new FileWriter(file);
+        Iterator iter = dailyLogLineMap.entrySet().iterator();
+        while (iter.hasNext()) {
+            Map.Entry<String, Pair<Date, Long>> map = (Map.Entry<String, Pair<Date, Long>>) iter.next();
+            StringBuilder str = new StringBuilder();
+            str.append(map.getKey()).append(",");
+            Date date = map.getValue().getKey();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            String line = map.getValue().getValue().toString();
+            str.append(sdf.format(date)).append(",").append(line).append("\r\n");
+            fileWriter.write(str.toString());
+            fileWriter.flush();
+        }
+    } catch (IOException e) {
+        e.printStackTrace();
+    } finally {
+        try {
+            fileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    }
+
+    private String getAgentPath() {
+        final ClassPathResolver classPathResolver = new AgentDirBaseClassPathResolver();
+        classPathResolver.verify();
+        return classPathResolver.getAgentDirPath();
     }
 
     private File[] listFiles(final Pattern pattern, String logDirPath) {
@@ -396,14 +492,23 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
         }
     }
 
+    private String getCorrespondLogDir(String tomcatLogDirs) {
+        String[] tomcatLogDirList = tomcatLogDirs.split(";");
+        HashMap<String, String> agentIdLogDirMap = new HashMap<String, String>();
+        for (String tomcatLogDir : tomcatLogDirList) {
+            String[] agentIdAndLog = tomcatLogDir.split("~");
+            agentIdLogDirMap.put(agentIdAndLog[0].trim(),agentIdAndLog[1].trim());
+        }
+        return agentIdLogDirMap.get(agentId);
+    }
+
     private List<TBusinessLogV1> getBusinessLogV1List() {
         String tomcatLogDirs = profilerConfig.getTomcatLogDir();
         businessLogList.clear();
-        String[] tomcatLogDirList = tomcatLogDirs.split(";");
-        for (String tomcatLogDir : tomcatLogDirList) {
-            File[] files = listFiles(BUSINESS_LOG_PATTERN, tomcatLogDir.trim());
-            generateBusinessLogList(files);
-        }
+        String tomcatLogDir = getCorrespondLogDir(tomcatLogDirs);
+        File[] files = listFiles(BUSINESS_LOG_PATTERN, tomcatLogDir.trim());
+        generateBusinessLogList(files);
+
         generateLogLineMap();
         //[XINGUANG] read BusinessLogList
         return readLogFromBusinessLogList();

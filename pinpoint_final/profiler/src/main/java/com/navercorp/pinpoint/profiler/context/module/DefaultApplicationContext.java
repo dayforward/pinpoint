@@ -207,7 +207,9 @@ public class DefaultApplicationContext implements ApplicationContext {
         this.agentInfoSender.start();
         this.agentStatMonitor.start();
         //[XINGUANG]:start business log collect monitor
-        this.businessLogMonitor.start();
+        if (profilerConfig.getBusinessLogEnable()) {
+            this.businessLogMonitor.start();
+        }
     }
 
     @Override
@@ -219,8 +221,9 @@ public class DefaultApplicationContext implements ApplicationContext {
         this.spanDataSender.stop();
         this.statDataSender.stop();
         //[XINGUANG]:stop business log collect monitor
-        this.businessLogMonitor.stop();
-
+        if (profilerConfig.getBusinessLogEnable()) {
+            this.businessLogMonitor.stop();
+        }
         closeTcpDataSender();
     }
 
