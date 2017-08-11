@@ -456,30 +456,32 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
     }
 
     private void generateLogLineMap() {
-        for (String businessLogV1 : businessLogList) {
-            Pair<Date, Long> dailyLine = dailyLogLineMap.get(businessLogV1);
-            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-            if (dailyLine == null) {               
+        if (businessLogList != null && !businessLogList.isEmpty()) {
+            for (String businessLogV1 : businessLogList) {
+                Pair<Date, Long> dailyLine = dailyLogLineMap.get(businessLogV1);
+                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+                if (dailyLine == null) {
                     Date date;
-					try {
-						date = df.parse(df.format(new Date()));
-						dailyLogLineMap.put(businessLogV1, new Pair<Date, Long>(date, 0l));
-					} catch (ParseException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}               
-            } else {
-                Date originDate = dailyLine.getKey();
+                    try {
+                        date = df.parse(df.format(new Date()));
+                        dailyLogLineMap.put(businessLogV1, new Pair<Date, Long>(date, 0l));
+                    } catch (ParseException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                } else {
+                    Date originDate = dailyLine.getKey();
                     Date date;
-					try {
-						date = df.parse(df.format(new Date()));
-						if (originDate.before(date)) {
-	                        dailyLogLineMap.put(businessLogV1, new Pair<Date, Long>(date, 0l));
-	                    }
-					} catch (ParseException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}                   
+                    try {
+                        date = df.parse(df.format(new Date()));
+                        if (originDate.before(date)) {
+                            dailyLogLineMap.put(businessLogV1, new Pair<Date, Long>(date, 0l));
+                        }
+                    } catch (ParseException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
             }
         }
     }
@@ -495,9 +497,18 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
     private String getCorrespondLogDir(String tomcatLogDirs) {
         String[] tomcatLogDirList = tomcatLogDirs.split(";");
         HashMap<String, String> agentIdLogDirMap = new HashMap<String, String>();
-        for (String tomcatLogDir : tomcatLogDirList) {
-            String[] agentIdAndLog = tomcatLogDir.split("~");
-            agentIdLogDirMap.put(agentIdAndLog[0].trim(),agentIdAndLog[1].trim());
+        if (tomcatLogDirList != null && tomcatLogDirList.length != 0) {
+            for (String tomcatLogDir : tomcatLogDirList) {
+                String[] agentIdAndLog = tomcatLogDir.split("~");
+                //agentId和logPath中不能带“~”，且两边都要存在
+                if (agentIdAndLog.length == 2) {
+                    agentIdLogDirMap.put(agentIdAndLog[0].trim(), agentIdAndLog[1].trim());
+                } else {
+                    return null;
+                }
+            }
+        } else {
+            return null;
         }
         return agentIdLogDirMap.get(agentId);
     }
@@ -506,11 +517,15 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
         String tomcatLogDirs = profilerConfig.getTomcatLogDir();
         businessLogList.clear();
         String tomcatLogDir = getCorrespondLogDir(tomcatLogDirs);
-        File[] files = listFiles(BUSINESS_LOG_PATTERN, tomcatLogDir.trim());
-        generateBusinessLogList(files);
+        if (tomcatLogDir != null) {
+            File[] files = listFiles(BUSINESS_LOG_PATTERN, tomcatLogDir.trim());
+            generateBusinessLogList(files);
 
-        generateLogLineMap();
-        //[XINGUANG] read BusinessLogList
-        return readLogFromBusinessLogList();
+            generateLogLineMap();
+            //[XINGUANG] read BusinessLogList
+            return readLogFromBusinessLogList();
+        } else {
+            return new ArrayList<TBusinessLogV1>();
+        }
     }
 }
