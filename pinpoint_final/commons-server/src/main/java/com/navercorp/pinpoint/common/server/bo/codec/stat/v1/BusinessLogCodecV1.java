@@ -163,17 +163,17 @@ public class BusinessLogCodecV1 implements BusinessLogCodec<BusinessLogV1Bo>{
         List<String> logList = new ArrayList<String>();
         for(BusinessLogV1Bo bussinessLogV1Bo : businessLogV1Bos){
         	
-        	sb.append(bussinessLogV1Bo.getAgentId()).append(" ");
+        	/*sb.append(bussinessLogV1Bo.getAgentId()).append(" ");
         	sb.append(bussinessLogV1Bo.getStartTimestamp()).append(" ");
-        	sb.append(bussinessLogV1Bo.getTimestamp()).append(" ");
+        	sb.append(bussinessLogV1Bo.getTimestamp()).append(" ");*/
         	sb.append(bussinessLogV1Bo.getTime()).append(" ");
         	sb.append(bussinessLogV1Bo.getThreadName()).append(" ");
         	sb.append(bussinessLogV1Bo.getLogLevel()).append(" ");
         	sb.append(bussinessLogV1Bo.getClassName()).append(" ");
         	sb.append(bussinessLogV1Bo.getTransactionId()).append(" ");
         	sb.append(bussinessLogV1Bo.getSpanId()).append(" ");
-        	sb.append(bussinessLogV1Bo.getMessage()).append("");
-        	sb.append("\r\n");
+        	sb.append(bussinessLogV1Bo.getMessage()).append(" ");
+        	sb.append("<br>");
         	logList.add(sb.toString());
         	
         	int  sb_length = sb.length();
