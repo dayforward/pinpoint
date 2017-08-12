@@ -71,7 +71,13 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
         System.out.println("Init the dailyLogLineMap");
         //读文件，并初始化dailyLogLineMap
         String agentPath = getAgentPath();
-        String filePath = agentPath  + File.separator +  agentId + ".txt";
+        String dirPath = agentPath + File.separator + "businessLogPersistence";
+        String filePath = dirPath  + File.separator +  agentId + ".txt";
+        File dir = new File(dirPath);
+        if(!dir.exists()) {
+            dir.mkdir();
+            logger.info("创建存放记录读取日志持久化行数文件的文件夹");
+        }
         File file = new File(filePath);
         if (file.exists()) {
             String encoding = "UTF-8";
@@ -115,8 +121,13 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
         System.out.println("save log mark");
         //首先取到agent包的位置
         String agentPath = getAgentPath();
-        String filePath = agentPath   + File.separator +  agentId + ".txt";
-      //  String filePath = "D:\\pinpoint-agent-1.6.2\\PinPointAgentID.txt";
+        String dirPath = agentPath + File.separator + "businessLogPersistence";
+        String filePath = dirPath   + File.separator +  agentId + ".txt";
+        File dir = new File(dirPath);
+        if (!dir.exists()) {
+            dir.mkdir();
+            logger.info("创建存放记录读取日志持久化行数文件的文件夹");
+        }
         File file = new File(filePath);
         //写入内容
         if (!file.exists()) {
@@ -499,15 +510,17 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
         HashMap<String, String> agentIdLogDirMap = new HashMap<String, String>();
         if (tomcatLogDirList != null && tomcatLogDirList.length != 0) {
             for (String tomcatLogDir : tomcatLogDirList) {
-                String[] agentIdAndLog = tomcatLogDir.split("~");
+                String[] agentIdAndLog = tomcatLogDir.split("=");
                 //agentId和logPath中不能带“~”，且两边都要存在
                 if (agentIdAndLog.length == 2) {
                     agentIdLogDirMap.put(agentIdAndLog[0].trim(), agentIdAndLog[1].trim());
                 } else {
+                    logger.error("配置profiler.tomcatlog.dir参数不正确");
                     return null;
                 }
             }
         } else {
+            logger.error("未配置profiler.tomcatlog.dir参数");
             return null;
         }
         return agentIdLogDirMap.get(agentId);
