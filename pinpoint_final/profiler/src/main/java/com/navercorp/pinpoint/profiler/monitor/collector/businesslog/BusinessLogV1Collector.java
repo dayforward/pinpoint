@@ -33,7 +33,7 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
 
     private ProfilerConfig profilerConfig;
     private long nextLine;
-    static final Pattern BUSINESS_LOG_PATTERN = compile("^BUSINESS_LOG_[A-Za-z0-9]*.log$");
+    static final Pattern BUSINESS_LOG_PATTERN = compile("^BUSINESS_LOG_[A-Za-z0-9_-:]*.log$");
     //static final String TIME_FIELD_PATTEN = "^[[1-9]\\\\d{3}\\\\-(0?[1-9]|1[0-2])\\\\-(0?[1-9]|[12]\\\\d|3[01])\\\\s*(0?[1-9]|1\\\\d|2[0-3])(\\\\:(0?[1-9]|[1-5]\\\\d)){2}]$";
     static final String TIME_FIELD_PATTEN = "^\\[([0-9]{3}[1-9]|[0-9]{2}[1-9][0-9]{1}|[0-9]{1}[1-9][0-9]{2}|[1-9][0-9]{3})-(((0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01]))|((0[469]|11)-(0[1-9]|[12][0-9]|30))|(02-(0[1-9]|[1][0-9]|2[0-8]))) ([0-1]?[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])\\]$";
     static final String THREAD_FIELD_PATTEN = "^[*]$";

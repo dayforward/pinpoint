@@ -67,7 +67,7 @@ public class BusinessLogCodecV1 implements BusinessLogCodec<BusinessLogV1Bo>{
         	threadNameAnalyzerBuilder.addValue(BusinessLogV1Bo.getThreadName());
         	logLevelAnalyzerBuilder.addValue(BusinessLogV1Bo.getLogLevel());
         	classNameAnalyzerBuilder.addValue(BusinessLogV1Bo.getClassName());
-        	transactionIdAnalyzerBuilder.addValue(BusinessLogV1Bo.getTransactionIdANDSpanId());
+        	transactionIdAnalyzerBuilder.addValue(BusinessLogV1Bo.getTransactionId());
         	spanIdAnalyzerBuilder.addValue(BusinessLogV1Bo.getSpanId());
         	messageAnalyzerBuilder.addValue(BusinessLogV1Bo.getMessage());
         }
@@ -170,8 +170,8 @@ public class BusinessLogCodecV1 implements BusinessLogCodec<BusinessLogV1Bo>{
         	sb.append(bussinessLogV1Bo.getThreadName()).append(" ");
         	sb.append(bussinessLogV1Bo.getLogLevel()).append(" ");
         	sb.append(bussinessLogV1Bo.getClassName()).append(" ");
-        	sb.append(bussinessLogV1Bo.getTransactionId()).append(" ");
-        	sb.append(bussinessLogV1Bo.getSpanId()).append(" ");
+        	sb.append("[transactionId : ").append(bussinessLogV1Bo.getTransactionId()).append(" ");
+        	sb.append("spanId : ").append(bussinessLogV1Bo.getSpanId()).append("] ");
         	sb.append(bussinessLogV1Bo.getMessage()).append(" ");
         	sb.append("<br>");
         	logList.add(sb.toString());
