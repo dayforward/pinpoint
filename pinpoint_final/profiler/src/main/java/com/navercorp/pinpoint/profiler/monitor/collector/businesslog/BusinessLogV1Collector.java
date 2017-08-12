@@ -350,11 +350,18 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
 	                if("".equals(lineTxt)){
 	                    continue;
                     }
-	                String[] lineTxts = lineTxt.split(" ");
 
-	                /*for (int i = 0; i < lineTxts.length; i++) {
-	                    lineTxts[i] = lineTxts[i].trim();
-                    }*/
+	                String[] originLineTxts = lineTxt.split(" ");
+                    List<String> list = new ArrayList<String>();
+                    for (String txt : originLineTxts) {
+                        if (!txt.isEmpty() && txt != null) {
+                            list.add(txt.trim());
+                        }
+                    }
+                    String lineTxts[] = new String[list.size()];
+                    for(int i=0,j=list.size();i<j;i++){
+                        lineTxts[i]=list.get(i);
+                    }
 
 	                String time  = lineTxts[0] + " " + lineTxts[1];
 	                lineTxts[0] = time;

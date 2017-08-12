@@ -1,4 +1,4 @@
-**BusinessLog** is for Application to record their Logs with mark to label which trace belong to.In our implementation,
+       **BusinessLog** is for Application to record their Logs with mark to label which trace belong to.In our implementation,
 we implement thread parts :
 * BusinessLog Collector in Pinpoint's Agent started as thread with Application'progrecess
 * A branch of BusinessLog at Pinpoint'UDP Receiver in Pinpoint's Collector
@@ -8,7 +8,7 @@ next we will explain how to config and use our BusinessLog' function.
 As konwn,most application take log4j or logback to record their business log,here we take log4j
 for an example.
    * **configuration of log4j.xml** - Currently,we have a firm constraint on log4j:*Firstly*,it
-   must generate one log per day;*Secondly*,the pattern of logfile'name must match  the Pattern *"^BUSINESS_LOG_[A-Za-z0-9_-]*.log$"* 
+   must generate one log per day;*Secondly*,the pattern of logfile'name must match  the Pattern *"^BUSINESS_LOG_[A-Za-z0-9\_-]*.log$"* 
    and in the example, the filename is "BUSINESS_LOG_test.log";*Thirdly*,it must has **exactly** the same log pattern as illustrated
    as follows:
    ![log4j.xml](doc/img/businesslog/log4j.png)
@@ -23,7 +23,7 @@ for an example.
      AppOne and AppTwo are different applications but on the same machine, so they can share the same Pinpoint'agent.Different Application'
      Info must be seperated by **;** .One Application's Info is composited by AgentId and dir of business log which the same with configuration
      in the log4j,but must be a *dir*, and seperated by **=**
-     2. Setting profiler.businesslog.enable=true will start the thread of businelog collector ,or else disable.
+     2. Setting profiler.businesslog.enable=true will start the thread of businesslog collector ,or else disable.
 ##Operation in Webui
   * **select application** *
   ![application](doc/img/businesslog/application.png)
