@@ -50,8 +50,8 @@ public class HbaseBusinessLogV1Dao implements BusinessLogV1Dao {
         byte[] bAgentId = BytesUtils.toBytes(agentId);
         byte[] bStatType = new byte[]{BusinessLogType.BUSINESS_LOG_V1.getRawTypeCode()};
 
-        byte[] bTransactionId = BytesUtils.toBytes(transactionId);
-        byte[] rowKey = new byte[AGENT_NAME_MAX_LEN + bStatType.length + bTransactionId.length];
+        byte[] bTransactionId = BytesUtils.toBytes((transactionId + "#"));
+        byte[] rowKey = new byte[AGENT_NAME_MAX_LEN + bStatType.length + bTransactionId.length + 1];
         BytesUtils.writeBytes(rowKey, 0, bAgentId);
         BytesUtils.writeBytes(rowKey, AGENT_NAME_MAX_LEN, bStatType);
         BytesUtils.writeBytes(rowKey, AGENT_NAME_MAX_LEN + bStatType.length, bTransactionId);
