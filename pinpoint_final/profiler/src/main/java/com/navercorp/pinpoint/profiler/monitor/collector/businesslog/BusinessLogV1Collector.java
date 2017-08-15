@@ -231,11 +231,22 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
     		}
     	}
     	//删除多余的字符串
-    	linesList.remove(1);  	
+        if(linesList.size() < 10)
+            return null;
+        if(linesList.get(5) == null || linesList.get(5).trim() == "" ||linesList.size() < 2 )
+            return null;
+        String first = linesList.get(5).substring(0,1);
+        String second = linesList.get(5).substring(1);
+
+        if (!first.equals("[") || !second.equalsIgnoreCase("txid") || !linesList.get(8).equalsIgnoreCase("spanid"))
+            return  null;
+
+        linesList.remove(1);
         linesList.remove(4);
         linesList.remove(4);
         linesList.remove(5);
         linesList.remove(5);
+
        /* EnumField state = EnumField.TIME;
         for (String string : linesList) {
         	switch (state) {
@@ -362,17 +373,27 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
                     for(int i=0,j=list.size();i<j;i++){
                         lineTxts[i]=list.get(i);
                     }
+                    String time = null;
 
-	                String time  = lineTxts[0] + " " + lineTxts[1];
-	                lineTxts[0] = time;
+                    if (lineTxts.length >= 2) {
+                        time = lineTxts[0] + " " + lineTxts[1];
+
+                    }
+
 	                if (firstLineInOneMessage) {                 	
 	                    if (!checkTimePatternMeet(time)) {
 	                        //corrupt log format
-	                        return new Pair(line, null);
+	                        return new Pair(nextLine, null);
 	                    }
+	                    if(time != null) {
+                            lineTxts[0] = time;
+                        }
 	                    firstLineInOneMessage = false;
 	                } else {
 	                    if (checkTimePatternMeet(time)) {
+                            if(time != null) {
+                                lineTxts[0] = time;
+                            }
 	                    	nextLineContext = lineTxts;
 	                    	Long markLine = nextLine;
 	                    	Date date = dailyLogLineMap.get(businessLogV1).getKey();
@@ -396,7 +417,7 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
             tBusinessLogV1 = generateTBusinessLogV1FromStringList(linesOfTxts);
         }
         if (tBusinessLogV1 == null)
-            return new Pair<Long, TBusinessLogV1>(line, null);
+            return new Pair<Long, TBusinessLogV1>(nextLine, null);
         return new Pair<Long, TBusinessLogV1>(nextLine, tBusinessLogV1);
     }
 
@@ -455,7 +476,11 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
             Pair<Long, TBusinessLogV1> tBusinessLogV1LinePair = readOneLogFromLine(reader, businessLogV1, line);
             if (tBusinessLogV1LinePair.getKey() != line) {
                 line = tBusinessLogV1LinePair.getKey();
-                tBusinessLogV1List.add(tBusinessLogV1LinePair.getValue());
+                if(tBusinessLogV1LinePair.getValue() != null) {
+                    tBusinessLogV1List.add(tBusinessLogV1LinePair.getValue());
+                } else {
+                    tBusinessLogV1List.add(new TBusinessLogV1());
+                }
             } else {
                 break;
             }
@@ -508,11 +533,12 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
         }
     }
     
-    private void generateBusinessLogList(File[] files) {
-        if (files != null) {
-            for (File file : files) {
+    private void generateBusinessLogList(String filedir) {
+        File file = new File(filedir);
+        if (file.exists() && file.isFile()) {
                 businessLogList.add(file.toString());
-            }
+        } else {
+            logger.error("business log dir:" + filedir + "not exist.");
         }
     }
 
@@ -526,15 +552,20 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
                 if (agentIdAndLog.length == 2) {
                     agentIdLogDirMap.put(agentIdAndLog[0].trim(), agentIdAndLog[1].trim());
                 } else {
-                    logger.error("配置profiler.tomcatlog.dir参数不正确");
+                    logger.error("profiler.tomcatlog.dir is wrong.");
                     return null;
                 }
             }
         } else {
-            logger.error("未配置profiler.tomcatlog.dir参数");
+            logger.error("profiler.tomcatlog.dir is null or empty.");
             return null;
         }
-        return agentIdLogDirMap.get(agentId);
+        String logdir = agentIdLogDirMap.get(agentId);
+        if (logdir != null) {
+            return logdir;
+        } else {
+            return null;
+        }
     }
 
     private List<TBusinessLogV1> getBusinessLogV1List() {
@@ -542,13 +573,14 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
         businessLogList.clear();
         String tomcatLogDir = getCorrespondLogDir(tomcatLogDirs);
         if (tomcatLogDir != null) {
-            File[] files = listFiles(BUSINESS_LOG_PATTERN, tomcatLogDir.trim());
-            generateBusinessLogList(files);
+            //File[] files = listFiles(BUSINESS_LOG_PATTERN, tomcatLogDir.trim());
+            generateBusinessLogList(tomcatLogDir);
 
             generateLogLineMap();
             //[XINGUANG] read BusinessLogList
             return readLogFromBusinessLogList();
         } else {
+            logger.error("This application does not have a configuration business log directory");
             return new ArrayList<TBusinessLogV1>();
         }
     }
