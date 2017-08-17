@@ -43,8 +43,9 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
     static final String TXSPAN_END_FIELD_PATTEN = "*]$";
     private List<String> businessLogList;
     private final static int linePerLogPerBatch = 1000;
-    String[] nextLineContext = null;
     boolean lastLine = false;
+    Long originLine = null;
+    String[] nextLineContext = null;
     String agentId;
     String jarPath;
     private HashMap<String, Pair<Date, Long>> dailyLogLineMap = new HashMap<String, Pair<Date, Long>>();
@@ -345,7 +346,7 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
         Long nextLine = line;
         String lineTxt;
         boolean firstLineInOneMessage = true;
-        List<String[]> linesOfTxts = new ArrayList<String[]>();        
+        List<String[]> linesOfTxts = new ArrayList<String[]>();
         while (true) {
         	if (nextLineContext != null) {
         		linesOfTxts.add(nextLineContext);
@@ -358,6 +359,9 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
 	                	break;
 	                }
                     nextLine++;
+	                if(nextLine - originLine > 120) {
+	                    break;
+                    }
 	                if("".equals(lineTxt)){
 	                    continue;
                     }
@@ -396,9 +400,9 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
                             }
 	                    	nextLineContext = lineTxts;
 	                    	Long markLine = nextLine;
-	                    	Date date = dailyLogLineMap.get(businessLogV1).getKey();
-                            dailyLogLineMap.put(businessLogV1, new Pair<Date, Long>(date, (markLine - 1)));
 
+                            Date newdate = dailyLogLineMap.get(businessLogV1).getKey();
+                            dailyLogLineMap.put(businessLogV1, new Pair<Date, Long>(newdate, (markLine - 1)));
                             assemblyData = true;
 	                    	break;
 	                    }
@@ -469,18 +473,24 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
         Pair<Date, Long> dateLinePair = dailyLogLineMap.get(businessLogV1);
         Long line = dateLinePair.getValue();
         Date date = dateLinePair.getKey();
+        originLine = line;
         
         //[XINGUANG] skip prelines
         boolean flag = skipPreLines(reader, businessLogV1, line);
         for (int i = 0; i < linePerLogPerBatch; i++) {
             Pair<Long, TBusinessLogV1> tBusinessLogV1LinePair = readOneLogFromLine(reader, businessLogV1, line);
             if (tBusinessLogV1LinePair.getKey() != line) {
+                if(tBusinessLogV1LinePair.getKey() - originLine >= 120) {
+                    break;
+                }
                 line = tBusinessLogV1LinePair.getKey();
-                if(tBusinessLogV1LinePair.getValue() != null) {
+
+                if (tBusinessLogV1LinePair.getValue() != null) {
                     tBusinessLogV1List.add(tBusinessLogV1LinePair.getValue());
                 } else {
                     tBusinessLogV1List.add(new TBusinessLogV1());
                 }
+
             } else {
                 break;
             }

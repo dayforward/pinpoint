@@ -24,8 +24,8 @@ import com.navercorp.pinpoint.thrift.dto.TBusinessLog;
  */
 public class DefaultBusinessLogMonitor implements BusinessLogMonitor {
 	
-	public static final long DEFAULT_COLLECTION_INTERVAL_MS = 1000 * 5;	
-	private static final int DEFAULT_NUM_COLLECTIONS_PER_SEND = 6;
+	public static final long DEFAULT_COLLECTION_INTERVAL_MS = 1000 * 5;
+	private static final int DEFAULT_NUM_COLLECTIONS_PER_SEND = 3;
 	
 	private static final Logger logger = LoggerFactory.getLogger(DefaultBusinessLogMonitor.class);
 	
