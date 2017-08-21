@@ -557,13 +557,13 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
         HashMap<String, String> agentIdLogDirMap = new HashMap<String, String>();
         if (tomcatLogDirList != null && tomcatLogDirList.length != 0) {
             for (String tomcatLogDir : tomcatLogDirList) {
+                logger.info("agentIdAndLog is " + tomcatLogDir);
                 String[] agentIdAndLog = tomcatLogDir.split("=");
                 //agentId和logPath中不能带“=”，且两边都要存在
                 if (agentIdAndLog.length == 2) {
                     agentIdLogDirMap.put(agentIdAndLog[0].trim(), agentIdAndLog[1].trim());
                 } else {
-                    logger.error("profiler.tomcatlog.dir is wrong.");
-                    return null;
+                    logger.error("profiler.tomcatlog.dir is wrong.agentIdAndLog is " + tomcatLogDir);
                 }
             }
         } else {
