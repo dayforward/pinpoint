@@ -377,7 +377,7 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
                     for(int i=0,j=list.size();i<j;i++){
                         lineTxts[i]=list.get(i);
                     }
-                    String time = null;
+                    String time = "timestamp";
 
                     if (lineTxts.length >= 2) {
                         time = lineTxts[0] + " " + lineTxts[1];
