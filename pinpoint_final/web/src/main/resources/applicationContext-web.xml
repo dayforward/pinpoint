@@ -124,4 +124,6 @@
     <!-- add to load for batch spring configuration.we need to conditional logic to behave differently base on 'batch.enable' config value -->
     <bean id="batchConfigruation" class="com.navercorp.pinpoint.web.batch.BatchConfiguration"/>
 
+    <bean id="AlarmMessageSenderImple" class="com.navercorp.pinpoint.web.alarm.AlarmMessageSenderImple"/>
+
 </beans>
