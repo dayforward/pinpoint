@@ -48,6 +48,7 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
     String[] nextLineContext = null;
     String agentId;
     String jarPath;
+    String agentPath;
     private HashMap<String, Pair<Date, Long>> dailyLogLineMap = new HashMap<String, Pair<Date, Long>>();
 
     private enum EnumField {
@@ -71,7 +72,7 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
     public void initDailyLogLineMap() {
         System.out.println("Init the dailyLogLineMap");
         //读文件，并初始化dailyLogLineMap
-        String agentPath = getAgentPath();
+        agentPath = getAgentPath();
         String dirPath = agentPath + File.separator + "businessLogPersistence";
         String filePath = dirPath  + File.separator +  agentId + ".txt";
         File dir = new File(dirPath);
@@ -119,9 +120,7 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
 
     @Override
     public void saveLogMark() {
-        System.out.println("save log mark");
         //首先取到agent包的位置
-        String agentPath = getAgentPath();
         String dirPath = agentPath + File.separator + "businessLogPersistence";
         String filePath = dirPath   + File.separator +  agentId + ".txt";
         File dir = new File(dirPath);
