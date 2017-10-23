@@ -1,7 +1,9 @@
 package com.navercorp.pinpoint.web.mapper;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.navercorp.pinpoint.common.server.bo.stat.BusinessLogV1Bo;
 import org.apache.hadoop.hbase.Cell;
@@ -43,6 +45,7 @@ public class BusinessLogMapper implements RowMapper<String> {
         final String agentId = this.hbaseOperationFactory.getAgentId(rowKey);
         final Cell[] rawCells = result.rawCells();
         final List<String> agentIdList = new ArrayList<>(rawCells.length);
+        Set set = new HashSet<>();
         for (Cell cell : result.rawCells()) {
             if (CellUtil.matchingFamily(cell, HBaseTables.BUSINESS_MESSAGEINFO)) {
                 Buffer qualifierBuffer = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
@@ -52,7 +55,9 @@ public class BusinessLogMapper implements RowMapper<String> {
                 decodingContext.setAgentId(agentId);
                 strList = this.decoder.decodeValue(valueBuffer, decodingContext);
                 for(String s : strList) {
-                	str.append(s).append("\r\n");
+                    if (set.add(s)) {
+                        str.append(s).append("\r\n");
+                    }
                 }
             }
 

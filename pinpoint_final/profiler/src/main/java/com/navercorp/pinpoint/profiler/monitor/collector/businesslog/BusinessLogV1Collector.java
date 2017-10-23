@@ -49,6 +49,7 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
     String agentId;
     String jarPath;
     String agentPath;
+    TBusinessLogV1 lastLog = null;
     private HashMap<String, Pair<Date, Long>> dailyLogLineMap = new HashMap<String, Pair<Date, Long>>();
 
     private enum EnumField {
@@ -163,8 +164,80 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
         }
     }
 
-
     }
+
+    private TBusinessLogV1 dealLastLog(String logPath, Long lineNum) {
+        TBusinessLogV1 tBusinessLogV1 = new TBusinessLogV1();
+        BufferedReader reader = generateBufferedReader(logPath);
+        String dayTime = null;
+        try {
+            String lineTxt = reader.readLine();
+            String[] lineTxts = lineTxt.split(" ");
+            dayTime = lineTxts[0].split("\\[")[1];
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if(checkTimeIsToday(dayTime)) {
+            tBusinessLogV1 = getYesterdayLastLog(logPath, lineNum);
+        }else {
+            tBusinessLogV1 = getLastLog(logPath, lineNum);
+        }
+
+        return tBusinessLogV1;
+    }
+
+    private TBusinessLogV1 getYesterdayLastLog(String logPath, Long lineNum) {
+        Date as = new Date(new Date().getTime()-24*60*60*1000);
+        SimpleDateFormat matter1 = new SimpleDateFormat("yyyy-MM-dd");
+        String yesterday = matter1.format(as);
+        StringBuilder sb = new StringBuilder();
+        String newLogPath = sb.append(logPath).append(".").append(yesterday).toString();
+        return getLastLog(newLogPath, lineNum);
+    }
+
+    private TBusinessLogV1 getLastLog(String logPath, Long lineNum) {
+        BufferedReader reader = generateBufferedReader(logPath);
+        skipPreLines(reader, logPath, lineNum);
+        String lineTxt;
+        boolean firstLineInOneMessage = true;
+        List<String[]> lineTxtsList = new ArrayList<String[]>();
+        while (true) {
+            try {
+                if ((lineTxt = reader.readLine()) == null ) {
+                    break;
+                }
+                String[] originLineTxts = lineTxt.split(" ");
+                List<String> list = new ArrayList<String>();
+                for (String txt : originLineTxts) {
+                    if (!txt.isEmpty() && txt != null) {
+                        list.add(txt.trim());
+                    }
+                }
+                String lineTxts[] = new String[list.size()];
+                for(int i=0,j=list.size();i<j;i++){
+                    lineTxts[i]=list.get(i);
+                }
+                String time = "timestamp";
+
+                if (lineTxts.length >= 2) {
+                    time = lineTxts[0] + " " + lineTxts[1];
+
+                }
+
+                if(firstLineInOneMessage) {
+                    if(time != null) {
+                        lineTxts[0] = time;
+                    }
+                    firstLineInOneMessage = false;
+                }
+                lineTxtsList.add(lineTxts);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return generateTBusinessLogV1FromStringList(lineTxtsList);
+    }
+
 
     private String getAgentPath() {
         final ClassPathResolver classPathResolver = new AgentDirBaseClassPathResolver();
@@ -185,6 +258,12 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
                 return false;
             }
         });
+    }
+
+    boolean checkTimeIsToday(String dayTime) {
+        Date now = new Date();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        return dayTime.equals(simpleDateFormat.format(now));
     }
 
     boolean checkTimePatternMeet(String timeField) {
@@ -388,7 +467,12 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
 	                        //corrupt log format
 	                        return new Pair(nextLine, null);
 	                    }
-	                    if(time != null) {
+	                    String dayTime = lineTxts[0].split("\\[")[1];
+	                    //因为rollingday的日志文件只有在第二天的日志生成的时候才会重新刷新，所以需要检查日志是否为当天的日志
+                        if (!checkTimeIsToday(dayTime)) {
+                            return new Pair(nextLine, null);
+                        }
+                        if(time != null) {
                             lineTxts[0] = time;
                         }
 	                    firstLineInOneMessage = false;
@@ -508,6 +592,10 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
                 }
             }
         }
+        if (null != lastLog) {
+            tBusinessLogV1List.add(lastLog);
+            lastLog = null;
+        }
         return tBusinessLogV1List;
     }
 
@@ -531,6 +619,7 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
                     try {
                         date = df.parse(df.format(new Date()));
                         if (originDate.before(date)) {
+                            lastLog = dealLastLog(businessLogV1, dailyLogLineMap.get(businessLogV1).getValue());
                             dailyLogLineMap.put(businessLogV1, new Pair<Date, Long>(date, 0l));
                         }
                     } catch (ParseException e) {
@@ -547,7 +636,7 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
         if (file.exists() && file.isFile()) {
                 businessLogList.add(file.toString());
         } else {
-            logger.error("business log dir:" + filedir + "not exist.");
+            logger.error("business log dir:" + filedir + " not exist.");
         }
     }
 
@@ -578,19 +667,24 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
     }
 
     private List<TBusinessLogV1> getBusinessLogV1List() {
-        String tomcatLogDirs = profilerConfig.getTomcatLogDir();
-        businessLogList.clear();
-        String tomcatLogDir = getCorrespondLogDir(tomcatLogDirs);
-        if (tomcatLogDir != null) {
-            //File[] files = listFiles(BUSINESS_LOG_PATTERN, tomcatLogDir.trim());
-            generateBusinessLogList(tomcatLogDir);
+        try {
+            String tomcatLogDirs = profilerConfig.getTomcatLogDir();
+            businessLogList.clear();
+            String tomcatLogDir = getCorrespondLogDir(tomcatLogDirs);
+            if (tomcatLogDir != null) {
+                //File[] files = listFiles(BUSINESS_LOG_PATTERN, tomcatLogDir.trim());
+                generateBusinessLogList(tomcatLogDir);
 
-            generateLogLineMap();
-            //[XINGUANG] read BusinessLogList
-            return readLogFromBusinessLogList();
-        } else {
-            logger.error("This application does not have a configuration business log directory");
-            return new ArrayList<TBusinessLogV1>();
+                generateLogLineMap();
+                //[XINGUANG] read BusinessLogList
+                return readLogFromBusinessLogList();
+            } else {
+                logger.error("This application does not have a configuration business log directory");
+                return new ArrayList<TBusinessLogV1>();
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
         }
+        return new ArrayList<TBusinessLogV1>();
     }
 }
