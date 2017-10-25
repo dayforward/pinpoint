@@ -48,8 +48,9 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
     String[] nextLineContext = null;
     String agentId;
     String jarPath;
+	int logIndex = 0;
     String agentPath;
-    TBusinessLogV1 lastLog = null;
+    List<TBusinessLogV1> lastLogs = new ArrayList<TBusinessLogV1>();
     private HashMap<String, Pair<Date, Long>> dailyLogLineMap = new HashMap<String, Pair<Date, Long>>();
 
     private enum EnumField {
@@ -584,17 +585,24 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
     private List<TBusinessLogV1> readLogFromBusinessLogList() {
         List<TBusinessLogV1> tBusinessLogV1List = new ArrayList<TBusinessLogV1>();
         if (!businessLogList.isEmpty()) {
-            for (String businessLogV1 : businessLogList) {
+            int num = businessLogList.size();
+            String businessLogV1 = businessLogList.get(logIndex % num);
+            logIndex++;
+            if(logIndex == num) {
+                logIndex = 0;
+            }
+            //for (String businessLogV1 : businessLogList) {
+
                 if (dailyLogLineMap.containsKey(businessLogV1)) {
                     List<TBusinessLogV1> tBusinessLogV1ListSub = readLogFromBusinessLog(businessLogV1);
                     //[XINGUANG] gurantee the order by first added list ,second added list ... when resolve data from tBusinessLogV1List?
                     tBusinessLogV1List.addAll(tBusinessLogV1ListSub);
                 }
-            }
+            //}
         }
-        if (null != lastLog) {
-            tBusinessLogV1List.add(lastLog);
-            lastLog = null;
+        if (!lastLogs.isEmpty()) {
+            tBusinessLogV1List.addAll(lastLogs);
+            lastLogs.clear();
         }
         return tBusinessLogV1List;
     }
@@ -619,7 +627,8 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
                     try {
                         date = df.parse(df.format(new Date()));
                         if (originDate.before(date)) {
-                            lastLog = dealLastLog(businessLogV1, dailyLogLineMap.get(businessLogV1).getValue());
+                            TBusinessLogV1 lastLog = dealLastLog(businessLogV1, dailyLogLineMap.get(businessLogV1).getValue());
+                            lastLogs.add(lastLog);
                             dailyLogLineMap.put(businessLogV1, new Pair<Date, Long>(date, 0l));
                         }
                     } catch (ParseException e) {
@@ -631,25 +640,34 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
         }
     }
     
-    private void generateBusinessLogList(String filedir) {
-        File file = new File(filedir);
-        if (file.exists() && file.isFile()) {
+    private void generateBusinessLogList(List<String> filedirList) {
+        for (String filedir : filedirList) {
+            File file = new File(filedir);
+            if (file.exists() && file.isFile()) {
                 businessLogList.add(file.toString());
-        } else {
-            logger.error("business log dir:" + filedir + " not exist.");
+            } else {
+                logger.error("business log dir:" + filedir + " is not exist.");
+            }
         }
     }
 
-    private String getCorrespondLogDir(String tomcatLogDirs) {
+    private List<String> getCorrespondLogDir(String tomcatLogDirs) {
         String[] tomcatLogDirList = tomcatLogDirs.split(";");
-        HashMap<String, String> agentIdLogDirMap = new HashMap<String, String>();
+        HashMap<String, List<String>> agentIdLogDirMap = new HashMap<String, List<String>>();
         if (tomcatLogDirList != null && tomcatLogDirList.length != 0) {
             for (String tomcatLogDir : tomcatLogDirList) {
                 logger.info("agentIdAndLog is " + tomcatLogDir);
                 String[] agentIdAndLog = tomcatLogDir.split("=");
                 //agentId和logPath中不能带“=”，且两边都要存在
                 if (agentIdAndLog.length == 2) {
-                    agentIdLogDirMap.put(agentIdAndLog[0].trim(), agentIdAndLog[1].trim());
+                    List<String> logDirList = new ArrayList<String>();
+                    if(agentIdLogDirMap.get(agentIdAndLog[0].trim()) != null) {
+                        logDirList = agentIdLogDirMap.get(agentIdAndLog[0].trim());
+                    }
+                    if(!logDirList.contains(agentIdAndLog[1].trim())) {
+                        logDirList.add(agentIdAndLog[1].trim());
+                    }
+                    agentIdLogDirMap.put(agentIdAndLog[0].trim(), logDirList);
                 } else {
                     logger.error("profiler.tomcatlog.dir is wrong.agentIdAndLog is " + tomcatLogDir);
                 }
@@ -658,9 +676,9 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
             logger.error("profiler.tomcatlog.dir is null or empty.");
             return null;
         }
-        String logdir = agentIdLogDirMap.get(agentId);
-        if (logdir != null) {
-            return logdir;
+        List<String> agentLogDirList = agentIdLogDirMap.get(agentId);
+        if (agentLogDirList != null) {
+            return agentLogDirList;
         } else {
             return null;
         }
@@ -670,7 +688,7 @@ public class BusinessLogV1Collector implements BusinessLogVXMetaCollector<TBusin
         try {
             String tomcatLogDirs = profilerConfig.getTomcatLogDir();
             businessLogList.clear();
-            String tomcatLogDir = getCorrespondLogDir(tomcatLogDirs);
+            List<String> tomcatLogDir = getCorrespondLogDir(tomcatLogDirs);
             if (tomcatLogDir != null) {
                 //File[] files = listFiles(BUSINESS_LOG_PATTERN, tomcatLogDir.trim());
                 generateBusinessLogList(tomcatLogDir);
