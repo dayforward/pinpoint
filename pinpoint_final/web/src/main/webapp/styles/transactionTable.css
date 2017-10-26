@@ -89,3 +89,6 @@
 .transaction-table-directive_table thead th:nth-child(8) {
     width: 25%;
 }
+.businessLogExist {
+    background-color: red;
+}

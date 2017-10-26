@@ -99,5 +99,8 @@ public class TransactionMetaDataViewModel {
         public String getSpanId() {
             return Long.toString(span.getSpanId());
         }
+
+        @JsonProperty("businessLogExist")
+        public boolean getBusinessLogExist() {return span.getBusinessLogExist();}
     }
 }

@@ -70,7 +70,8 @@ public class SpanBo implements Event, BasicSpan {
 
     private byte loggingTransactionInfo; //optional
 
-
+    //[XINGUANG]
+    private boolean businessLogExist = false;
 
 
     public SpanBo() {
@@ -340,6 +341,13 @@ public class SpanBo implements Event, BasicSpan {
     }
 
 
+    //[XINGUANG]
+    public boolean getBusinessLogExist() {return businessLogExist;}
+
+    public void setBusinessLogExist(boolean businessLogExist) {
+        this.businessLogExist = businessLogExist;
+    }
+
     @Override
     public String toString() {
         return "SpanBo{" +
@@ -371,6 +379,7 @@ public class SpanBo implements Event, BasicSpan {
                 ", acceptorHost='" + acceptorHost + '\'' +
                 ", remoteAddr='" + remoteAddr + '\'' +
                 ", loggingTransactionInfo=" + loggingTransactionInfo +
+                ", businessLogExist='" + businessLogExist +
                 '}';
     }
 }

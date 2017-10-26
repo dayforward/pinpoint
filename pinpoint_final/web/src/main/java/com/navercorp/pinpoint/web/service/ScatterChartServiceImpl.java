@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
+import com.navercorp.pinpoint.web.dao.businesslog.BusinessLogDao;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.vo.Range;
@@ -50,6 +51,9 @@ public class ScatterChartServiceImpl implements ScatterChartService {
     @Autowired
     @Qualifier("hbaseTraceDaoFactory")
     private TraceDao traceDao;
+
+    @Autowired
+    private BusinessLogDao businessLogDao;
 
     @Override
     public List<Dot> selectScatterData(String applicationName, SelectedScatterArea area, TransactionId offsetTransactionId, int offsetTransactionElapsed, int limit) {
@@ -133,8 +137,20 @@ public class ScatterChartServiceImpl implements ScatterChartService {
             index++;
         }
 
+        //[XINGUANG]
+        for (SpanBo span : result) {
+            TransactionId transactionId = span.getTransactionId();
+            String txId = transactionId.getAgentId() + "^" + transactionId.getAgentStartTime() + "^" + transactionId.getTransactionSequence();
+            List<String> businessLog  =  businessLogDao.getBusinessLog(span.getAgentId(), txId, null, 0l);
+            if(businessLog.size() != 0) {
+                span.setBusinessLogExist(true);
+            }
+        }
+
         return result;
     }
+
+
 
     @Override
     public ScatterData selectScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection) {
