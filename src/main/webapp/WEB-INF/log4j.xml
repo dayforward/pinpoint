@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="GBK" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+    <appender name="console"
+              class="org.apache.log4j.ConsoleAppender">
+        <param name="Threshold" value="debug"></param>
+        <layout class="org.apache.log4j.TTCCLayout">
+            <param name="ConversionPattern" value="TTCCLayout"></param>
+        </layout>
+    </appender>
+
+    <appender name="BUSINESS_LOG_tuchao_wuye"
+              class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="Threshold" value="debug"></param>
+        <param name="ImmediateFlush" value="true"></param>
+        <param name="File" value="E:/Test/log4j/BUSINESS_LOG_log4j_.log"></param>
+        <param name="DatePattern" value="'.'yyyy-MM-dd'.log'"></param>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="[%d{yyyy-MM-dd HH:mm:ss}] [%t] %p  %c  [TxId : %X{PtxId} SpanId : %X{PspanId}] %m%n" />
+        </layout>
+    </appender>
+
+    <root>
+        <appender-ref ref="console" />
+        <appender-ref ref="BUSINESS_LOG_tuchao_wuye" />
+    </root>
+
+</log4j:configuration>
