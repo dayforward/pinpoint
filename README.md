@@ -10,6 +10,7 @@ you can follow the instructions below
      1. profiler.log4j.logging.transactioninfo=true
      2. profiler.tomcatlog.dir=AppOneAgentId=E:/Test/log4j/;AppTwoAgentId=D:/Test/log4j
      3. profiler.businesslog.enable=true
+     4. profiler.loggingevent.enable=true
        
      
      
